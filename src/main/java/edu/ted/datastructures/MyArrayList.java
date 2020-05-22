@@ -1,3 +1,5 @@
+package edu.ted.datastructures;
+
 import java.util.*;
 
 public class MyArrayList<T> implements List<T>, Iterable<T> {

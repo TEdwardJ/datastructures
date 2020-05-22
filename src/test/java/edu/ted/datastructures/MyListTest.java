@@ -1,3 +1,7 @@
+package edu.ted.datastructures;
+
+import edu.ted.datastructures.MyArrayList;
+import edu.ted.datastructures.MyLinkedList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

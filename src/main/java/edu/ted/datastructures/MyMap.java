@@ -1,5 +1,6 @@
+package edu.ted.datastructures;
+
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 

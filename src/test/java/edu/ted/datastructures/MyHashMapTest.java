@@ -1,3 +1,7 @@
+package edu.ted.datastructures;
+
+import edu.ted.datastructures.MyHashMap;
+import edu.ted.datastructures.MyMap;
 import org.junit.Test;
 
 import java.util.*;

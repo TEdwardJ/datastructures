@@ -1,3 +1,5 @@
+package edu.ted.datastructures;
+
 import java.util.*;
 
 public class MyHashMap<K, V> implements MyMap<K, V>, Iterable<MyHashMap.Entry<K, V>> {

@@ -1,3 +1,5 @@
+package edu.ted.datastructures;
+
 import java.util.*;
 
 public class MyLinkedList<T> implements List<T>, Iterable<T> {
