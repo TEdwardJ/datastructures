@@ -80,7 +80,6 @@ public class LinkedList<T> implements List<T>, ExtendedList<T>, Iterable<T> {
         }
         Node<T> newNode = new Node<T>(node, node.prev, t);
         if (head == node) {
-
             head = newNode;
         } else {
             node.prev.next = newNode;
@@ -95,14 +94,17 @@ public class LinkedList<T> implements List<T>, ExtendedList<T>, Iterable<T> {
         add(t, size);
     }
 
-    private Node<T> findNode(Node<T> node, T val) {
-        if (Objects.equals(node.value, val)) {
-            return node;
-        } else if (node.next != null) {
-            return findNode(node.next, val);
-        } else {
+    private Node<T> findNode(T val) {
+        if (head == null) {
             return null;
         }
+        Node<T> node1 = head;
+        int counter = 0;
+        while (!Objects.equals(node1.value, val) && node1.next != null) {
+            counter++;
+            node1 = node1.next;
+        }
+        return Objects.equals(node1.value, val) ? node1 : null;
     }
 
     private Node<T> findNodeFromBegin(int idx) {
@@ -155,7 +157,7 @@ public class LinkedList<T> implements List<T>, ExtendedList<T>, Iterable<T> {
     public boolean remove(Object o) {
         if (size == 0)
             return false;
-        Node<T> node = findNode(head, (T) o);
+        Node<T> node = findNode((T) o);
         return remove(node);
     }
 
@@ -214,7 +216,7 @@ public class LinkedList<T> implements List<T>, ExtendedList<T>, Iterable<T> {
     public boolean removeAll(Collection<?> c) {
         boolean flag = false;
         for (Object element : c) {
-            Node<T> node = findNode(head, (T) element);
+            Node<T> node = findNode((T) element);
             flag = remove(node);
         }
         return flag;
@@ -254,7 +256,7 @@ public class LinkedList<T> implements List<T>, ExtendedList<T>, Iterable<T> {
         }
         Node<T> node = tail;
         int counter = size - 1;
-        while (!Objects.equals(node.value, val) && counter >= 0) {
+        while (!Objects.equals(node.value, val) && node.prev != null) {
             counter--;
             node = node.prev;
         }
@@ -287,7 +289,6 @@ public class LinkedList<T> implements List<T>, ExtendedList<T>, Iterable<T> {
     }
 
     public class LinkedListIterator implements Iterator<T> {
-
         private Node<T> current;
         private Node<T> lastReturned;
 
