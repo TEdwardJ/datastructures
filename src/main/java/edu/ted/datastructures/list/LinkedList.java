@@ -129,7 +129,7 @@ public class LinkedList<T> implements List<T>, ExtendedList<T>, Iterable<T> {
 
     private Node<T> findNode(int idx) {
         if (idx <= size / 2) {
-            return head == null ? null : findNodeFromEnd(idx);
+            return tail == null ? null : findNodeFromEnd(idx);
         } else {
             return head == null ? null : findNodeFromBegin(idx);
         }
@@ -214,10 +214,9 @@ public class LinkedList<T> implements List<T>, ExtendedList<T>, Iterable<T> {
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        boolean flag = false;
+        boolean flag = true;
         for (Object element : c) {
-            Node<T> node = findNode((T) element);
-            flag = remove(node);
+            flag = remove((T) element) && flag;
         }
         return flag;
     }
@@ -243,11 +242,14 @@ public class LinkedList<T> implements List<T>, ExtendedList<T>, Iterable<T> {
         }
         Node<T> node = head;
         int counter = 0;
-        while (!Objects.equals(node.value, val) && node.next != null) {
+        for (T t : this) {
+            if (Objects.equals(node.value, val)) {
+                return counter;
+            }
             counter++;
             node = node.next;
         }
-        return Objects.equals(node.value, val) ? counter : -1;
+        return -1;
     }
 
     private int findNodeLastIdx(T val) {
