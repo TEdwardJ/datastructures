@@ -1,16 +1,19 @@
-package edu.ted.datastructures;
+package edu.ted.datastructures.map;
 
-import edu.ted.datastructures.MyHashMap;
-import edu.ted.datastructures.MyMap;
-import org.junit.Test;
+import edu.ted.map.HashMap;
+import edu.ted.map.interfaces.MyMap;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class MyHashMapTest {
+@DisplayName("Map Implementation Testing")
+public class HashMapTest {
 
-    private MyMap<String, String> testMap = new MyHashMap<>();
+    private MyMap<String, String> testMap = new HashMap<String, String>();
 
     @Test
     public void size() {
@@ -143,7 +146,7 @@ public class MyHashMapTest {
         testMap.put("key0", "value0");
         testMap.put("key1", "value1");
         testMap.put("key2", "value2");
-        Map<String, String> mapToAdd = new HashMap<>();
+        Map<String, String> mapToAdd = new java.util.HashMap();
         mapToAdd.put("Key0", "Value0");
         mapToAdd.put("Key1", "Value1");
         mapToAdd.put("Key2", "Value2");
@@ -156,23 +159,46 @@ public class MyHashMapTest {
         assertTrue(testMap.containsValue("Value2"));
     }
 
-    @Test(expected = NoSuchElementException.class)
+    @Test
     public void iterator() {
         testMap.put("key0", "value0");
         testMap.put("key1", "value1");
         testMap.put("key2", "value2");
-        MyHashMap.MapIterator iter = testMap.iterator();
+        final HashMap.MapIterator iter = testMap.iterator();
         assertTrue(iter.hasNext());
         int counter = 0;
         while (iter.hasNext()) {
-            MyHashMap.Entry entry = iter.next();
+            HashMap.Entry entry = iter.next();
             counter++;
             assertTrue(entry.getKey().toString().contains("key"));
             assertTrue(entry.getValue().toString().contains("value"));
         }
         assertEquals(3, counter);
-        assertFalse(iter.hasNext());
-        iter.next();
+        assertThrows(NoSuchElementException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                iter.next();
+            }
+        });
+    }
 
+    @Test
+    public void iteratorRemoveTwice() {
+        testMap.put("key0", "value0");
+        testMap.put("key1", "value1");
+        testMap.put("key2", "value2");
+        final Iterator<HashMap.Entry<String, String>> iter = ((Iterable) testMap).iterator();
+        assertTrue(iter.hasNext());
+        assertEquals("key1", iter.next().getKey());
+        iter.remove();
+        assertEquals(2, testMap.size());
+        assertFalse(testMap.containsKey("key1"));
+        assertTrue(testMap.containsKey("key2"));
+        assertThrows(IllegalStateException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                iter.remove();
+            }
+        });
     }
 }

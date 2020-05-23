@@ -1,4 +1,6 @@
-package edu.ted.datastructures;
+package edu.ted.map.interfaces;
+
+import edu.ted.map.HashMap;
 
 import java.util.Collection;
 import java.util.Map;
@@ -28,7 +30,7 @@ public interface MyMap<K,V> {
     Set<K> keySet();
 
     Collection<V> values();
-    MyHashMap.MapIterator iterator();
+    HashMap.MapIterator iterator();
 
-    Set<MyHashMap.Entry<K, V>> entrySet();
+    Set<HashMap.Entry<K, V>> entrySet();
 }
