@@ -1,7 +1,7 @@
 package edu.ted.datastructures.map;
 
 import edu.ted.map.HashMap;
-import edu.ted.map.interfaces.MyMap;
+import edu.ted.map.MyMap;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -164,11 +164,11 @@ public class HashMapTest {
         testMap.put("key0", "value0");
         testMap.put("key1", "value1");
         testMap.put("key2", "value2");
-        final HashMap.MapIterator iter = testMap.iterator();
+        final Iterator<HashMap.Entry<String, String>> iter = testMap.iterator();
         assertTrue(iter.hasNext());
         int counter = 0;
         while (iter.hasNext()) {
-            HashMap.Entry entry = iter.next();
+            HashMap.Entry<String, String> entry = iter.next();
             counter++;
             assertTrue(entry.getKey().toString().contains("key"));
             assertTrue(entry.getValue().toString().contains("value"));

@@ -1,58 +1,23 @@
 package edu.ted.datastructures.list;
 
-
-import edu.ted.datastructures.list.interfaces.ExtendedList;
-import edu.ted.datastructures.list.interfaces.List;
-
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.Function;
 
-public class LinkedList<T> implements List<T>, ExtendedList<T>, Iterable<T> {
+public class LinkedList<T> extends AbstractList<T> {
     private Node<T> tail;
     private Node<T> head;
-    private int size = 0;
-
-    private static class Node<T> {
-        private Node<T> next;
-        private Node<T> prev;
-        private T value;
-
-        public Node(Node<T> next, Node<T> prev, T value) {
-            this.next = next;
-            this.prev = prev;
-            this.value = value;
-        }
-
-        public Node(T value) {
-            this.value = value;
-        }
-    }
-
-    @Override
-    public int size() {
-        return size;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return size == 0;
-    }
-
-    @Override
-    public boolean contains(Object o) {
-        return indexOf(o) != -1;
-    }
 
     @Override
     public Iterator<T> iterator() {
-        return new LinkedListIterator();
+        return this.new LinkedListIterator();
     }
 
     @Override
     public Object[] toArray() {
-        Object[] arrayToReturn = new Object[size];
+        T[] arrayToReturn = (T[]) new Object[size];
         int counter = 0;
         for (T element : this) {
             arrayToReturn[counter++] = element;
@@ -60,165 +25,38 @@ public class LinkedList<T> implements List<T>, ExtendedList<T>, Iterable<T> {
         return arrayToReturn;
     }
 
-    private boolean addInternal(T t) {
-        Node<T> newNode = new Node<T>(t);
-        if (tail == null) {
-            head = tail = newNode;
-        } else {
-            newNode.prev = tail;
-            tail.next = newNode;
-            tail = newNode;
-        }
-        size++;
-        return true;
-    }
-
-    private void addInternal(Node<T> node, T t) {
-        if (node == null) {
-            addInternal(t);
-            return;
-        }
-        Node<T> newNode = new Node<T>(node, node.prev, t);
-        if (head == node) {
-            head = newNode;
-        } else {
-            node.prev.next = newNode;
-        }
-        node.prev = newNode;
-        size++;
-    }
-
-
     @Override
-    public void add(T t) {
-        add(t, size);
-    }
-
-    private Node<T> findNode(T val) {
+    public boolean remove(T value) {
+        if (size == 0) {
+            return false;
+        }
         if (head == null) {
-            return null;
-        }
-        Node<T> node1 = head;
-        int counter = 0;
-        while (!Objects.equals(node1.value, val) && node1.next != null) {
-            counter++;
-            node1 = node1.next;
-        }
-        return Objects.equals(node1.value, val) ? node1 : null;
-    }
-
-    private Node<T> findNodeFromBegin(int idx) {
-        Node<T> node = head;
-        int counter = 0;
-        while (counter < idx) {
-            counter++;
-            node = node.next;
-        }
-        return node;
-    }
-
-    private Node<T> findNodeFromEnd(int idx) {
-        Node<T> node = tail;
-        int counter = size - 1;
-        while (counter > idx) {
-            counter--;
-            node = node.prev;
-        }
-        return node;
-    }
-
-    private Node<T> findNode(int idx) {
-        if (idx <= size / 2) {
-            return tail == null ? null : findNodeFromEnd(idx);
-        } else {
-            return head == null ? null : findNodeFromBegin(idx);
-        }
-    }
-
-    private boolean remove(Node<T> node) {
-        if (node == null) {
             return false;
         }
-        Node<T> next = node.next == null ? tail : node.next;
-        Node<T> prev = node.prev == null ? head : node.prev;
-        prev.next = next;
-        next.prev = prev;
-        if (head == node) {
-            head = next;
+        Node<T> currentNode = head;
+        while (!Objects.equals(currentNode.value, value) && currentNode.next != null) {
+            currentNode = currentNode.next;
         }
-        if (tail == node) {
-            tail = prev;
-        }
-        size--;
-        return true;
-    }
-
-    @Override
-    public boolean remove(Object o) {
-        if (size == 0)
-            return false;
-        Node<T> node = findNode((T) o);
-        return remove(node);
+        currentNode = Objects.equals(currentNode.value, value) ? currentNode : null;
+        return remove(currentNode);
     }
 
     @Override
     public T remove(int index) {
         validateIndex(index);
-        Node<T> node = findNode(index);
-        remove(node);
-        return node != null ? node.value : null;
+        Node<T> nodeToRemove = findNode(index);
+        remove(nodeToRemove);
+        return nodeToRemove != null ? nodeToRemove.value : null;
     }
 
     @Override
-    public boolean containsAll(Collection<?> c) {
-        boolean flag = true;
-        for (Object o : c) {
-            flag = contains((T) o) && flag;
-        }
-        return flag;
-    }
-
-    @Override
-    public boolean addAll(Collection<? extends T> c) {
-        return addAll(size, c);
-    }
-
-    @Override
-    public boolean addAll(int index, Collection<? extends T> c) {
+    public boolean addAll(int index, Collection<? extends T> collection) {
         validateIndexEnclosingEnd(index);
-        Node<T> node = findNode(index);
-        for (T element : c) {
-            addInternal(node, element);
+        Node<T> nodeToAddBefore = findNode(index);
+        for (T element : collection) {
+            addInternal(nodeToAddBefore, element);
         }
         return true;
-    }
-
-    private String getIndexOutOfBoundMessage(int index) {
-        return new StringBuilder("Index ")
-                .append(index)
-                .append("is out of bounds ")
-                .append(0)
-                .append(size)
-                .toString();
-    }
-
-    private void validateIndexEnclosingEnd(int index) {
-        if (index > size || index < 0)
-            throw new IndexOutOfBoundsException(getIndexOutOfBoundMessage(index));
-    }
-
-    private void validateIndex(int index) {
-        if (index >= size || index < 0)
-            throw new IndexOutOfBoundsException(getIndexOutOfBoundMessage(index));
-    }
-
-    @Override
-    public boolean removeAll(Collection<?> c) {
-        boolean flag = true;
-        for (Object element : c) {
-            flag = remove((T) element) && flag;
-        }
-        return flag;
     }
 
     @Override
@@ -235,73 +73,99 @@ public class LinkedList<T> implements List<T>, ExtendedList<T>, Iterable<T> {
         return node.value;
     }
 
+    @Override
+    public T set(T value, int index) {
+        validateIfEmpty();
+        validateIndex(index);
+        Node<T> nodeToSet = findNode(index);
+        T oldValue = nodeToSet.value;
+        nodeToSet.value = value;
+        return oldValue;
+    }
 
-    private int findNodeIdx(T val) {
-        if (head == null) {
-            return -1;
-        }
-        Node<T> node = head;
-        int counter = 0;
-        for (T t : this) {
-            if (Objects.equals(node.value, val)) {
-                return counter;
+
+
+    @Override
+    public void add(T value, int index) {
+        validateIndexEnclosingEnd(index);
+        addInternal(findNode(index), value);
+    }
+
+    @Override
+    public int indexOf(T value) {
+        int index = 0;
+        for (T element : this) {
+            if (Objects.equals(element, value)) {
+                return index;
             }
-            counter++;
-            node = node.next;
+            index++;
         }
         return -1;
     }
 
-    private int findNodeLastIdx(T val) {
+    @Override
+    public int lastIndexOf(T value) {
         if (tail == null) {
             return -1;
         }
         Node<T> node = tail;
-        int counter = size - 1;
-        while (!Objects.equals(node.value, val) && node.prev != null) {
-            counter--;
+        int index = size - 1;
+        while (!Objects.equals(node.value, value) && node.prev != null) {
+            index--;
             node = node.prev;
         }
-        return Objects.equals(node.value, val) ? counter : -1;
+        return Objects.equals(node.value, value) ? index : -1;
     }
 
-    @Override
-    public T set(T element, int index) {
-        validateIndex(index);
-        Node<T> node = findNode(index);
-        T value = node.value;
-        node.value = element;
-        return value;
-    }
-
-    @Override
-    public void add(T element, int index) {
-        validateIndexEnclosingEnd(index);
-        addInternal(findNode(index), element);
-    }
-
-    @Override
-    public int indexOf(Object o) {
-        return findNodeIdx((T) o);
-    }
-
-    @Override
-    public int lastIndexOf(Object o) {
-        return findNodeLastIdx((T) o);
-    }
-
-    public class LinkedListIterator implements Iterator<T> {
-        private Node<T> current;
-        private Node<T> lastReturned;
-
-        public LinkedListIterator() {
-            current = head;
+    private Node<T> findNodeFunctional(int index, Node<T> startNode, Function<Node<T>, Node<T>> nextElement) {
+        Node<T> node = startNode;
+        int counter = 0;
+        while (counter != index) {
+            counter++;
+            node = nextElement.apply(node);
         }
+        return node;
+    }
+
+    private Node<T> findNode(int index) {
+        if (index <= size / 2) {
+            return tail == null ? null : findNodeFunctional(size - 1 - index, tail, node -> node.prev);
+        } else {
+            return head == null ? null : findNodeFunctional(index, head, node -> node.next);
+        }
+    }
+
+    private boolean remove(Node<T> nodeToBeRemoved) {
+        if (nodeToBeRemoved == null) {
+            return false;
+        }
+        size--;
+        if (head == nodeToBeRemoved) {
+            if (tail == head) {
+                clear();
+                return true;
+            }
+            head = nodeToBeRemoved.next;
+            head.prev = null;
+        } else if (tail == nodeToBeRemoved) {
+            tail = nodeToBeRemoved.prev;
+            tail.next = null;
+        } else {
+            nodeToBeRemoved.prev.next = nodeToBeRemoved.next;
+            nodeToBeRemoved.next.prev = nodeToBeRemoved.prev;
+        }
+        return true;
+    }
+
+    private class LinkedListIterator implements Iterator<T> {
+
+        private Node<T> current = head;
+        private Node<T> lastReturned;
 
         @Override
         public void remove() {
             if (lastReturned == null) {
-                throw new IllegalStateException();
+                throw new IllegalStateException("The element was already removed");
             }
             LinkedList.this.remove(lastReturned);
             lastReturned = null;
@@ -321,6 +185,46 @@ public class LinkedList<T> implements List<T>, ExtendedList<T>, Iterable<T> {
             T value = current.value;
             current = current.next;
             return value;
+        }
+    }
+
+    private void addToTail(T value) {
+        Node<T> newNode = new Node<>(value);
+        if (tail == null) {
+            head = tail = newNode;
+        } else {
+            newNode.prev = tail;
+            tail.next = newNode;
+            tail = newNode;
+        }
+        size++;
+    }
+
+    private void addInternal(Node<T> nodeToAddBefore, T value) {
+        if (nodeToAddBefore == null) {
+            addToTail(value);
+            return;
+        }
+        Node<T> newNode = new Node<>(value);
+        if (head == nodeToAddBefore) {
+            newNode.next = head;
+            head = newNode;
+        } else {
+            newNode.next = nodeToAddBefore;
+            newNode.prev = nodeToAddBefore.prev;
+            nodeToAddBefore.prev.next = newNode;
+        }
+        nodeToAddBefore.prev = newNode;
+        size++;
+    }
+
+    private static class Node<T> {
+        private Node<T> next;
+        private Node<T> prev;
+        private T value;
+
+        private Node(T value) {
+            this.value = value;
         }
     }
 }

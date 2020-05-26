@@ -2,9 +2,8 @@ package edu.ted.map;
 
 
 import edu.ted.datastructures.list.ArrayList;
-import edu.ted.datastructures.list.interfaces.ExtendedList;
-import edu.ted.datastructures.list.interfaces.List;
-import edu.ted.map.interfaces.MyMap;
+import edu.ted.datastructures.list.ExtendedList;
+import edu.ted.datastructures.list.List;
 
 import java.util.*;
 
@@ -13,7 +12,7 @@ public class HashMap<K, V> implements MyMap<K, V>, Iterable<HashMap.Entry<K, V>>
     private static final double LOAD_RATIO = 0.75d;
     private static final int INITIAL_CAPACITY = 16;
 
-    private ArrayList[] chunkList;
+    private ArrayList<Entry<K, V>>[] chunkList;
 
     private int currentCapacity;
     private int currentSize;
@@ -26,7 +25,7 @@ public class HashMap<K, V> implements MyMap<K, V>, Iterable<HashMap.Entry<K, V>>
 
     public HashMap(int currentCapacity, int startSize) {
         this.currentCapacity = currentCapacity;
-        this.currentSize = currentSize;
+        this.currentSize = startSize;
         chunkList = new ArrayList[currentCapacity];
     }
 
@@ -34,7 +33,7 @@ public class HashMap<K, V> implements MyMap<K, V>, Iterable<HashMap.Entry<K, V>>
         private K key;
         private V value;
 
-        public Entry(K key, V value) {
+        private Entry(K key, V value) {
             this.key = key;
             this.value = value;
         }
@@ -75,7 +74,7 @@ public class HashMap<K, V> implements MyMap<K, V>, Iterable<HashMap.Entry<K, V>>
     private void resize() {
         Set<Entry<K, V>> set = entrySet();
         int newCapacity = currentCapacity << 1 <= Integer.MAX_VALUE ? currentCapacity << 1 : Integer.MAX_VALUE;
-        edu.ted.datastructures.list.ArrayList[] newChunkList = new ArrayList[newCapacity];
+        ArrayList<Entry<K, V>>[] newChunkList = new ArrayList[newCapacity];
 
         currentCapacity = newCapacity;
         for (Entry<K, V> entry : set) {
@@ -84,7 +83,6 @@ public class HashMap<K, V> implements MyMap<K, V>, Iterable<HashMap.Entry<K, V>>
         chunkList = newChunkList;
         currentSize = set.size();
     }
-
 
     @Override
     public int size() {
@@ -104,10 +102,10 @@ public class HashMap<K, V> implements MyMap<K, V>, Iterable<HashMap.Entry<K, V>>
 
     @Override
     public boolean containsValue(Object value) {
-        for (int i = 0; i < chunkList.length; i++) {
-            if (chunkList[i] != null) {
-                for (int j = 0; j < chunkList[i].size(); j++) {
-                    if (Objects.equals(((Entry) chunkList[i].get(j)).getValue(), value))
+        for (ArrayList arrayList : chunkList) {
+            if (arrayList != null) {
+                for (int j = 0; j < arrayList.size(); j++) {
+                    if (Objects.equals(((Entry) arrayList.get(j)).getValue(), value))
                         return true;
                 }
             }
@@ -115,17 +113,11 @@ public class HashMap<K, V> implements MyMap<K, V>, Iterable<HashMap.Entry<K, V>>
         return false;
     }
 
-
     private Entry<K, V> getEntry(Object key) {
-        return getEntry(this.chunkList, key);
-    }
-
-    private Entry<K, V> getEntry(ArrayList[] chunkList, Object key) {
-        List<Entry> list = getChunk((K) key);
-        for (int i = 0; i < list.size(); i++) {
-            if (((Entry) list.get(i)).getKey().equals(key)) {
-                Entry old = ((Entry) list.get(i));
-                return old;
+        List<Entry<K, V>> list = getChunk((K) key);
+        for (Entry<K, V> entry : list) {
+            if (entry.getKey().equals(key)) {
+                return entry;
             }
         }
         return null;
@@ -135,22 +127,22 @@ public class HashMap<K, V> implements MyMap<K, V>, Iterable<HashMap.Entry<K, V>>
     public V get(K key) {
         Entry<K, V> entry = getEntry(key);
         if (entry != null) {
-            return (V) entry.getValue();
+            return entry.getValue();
         }
         return null;
     }
 
-    private ArrayList<Entry> createChunk(ArrayList[] chunkList, int chunkNum) {
-        chunkList[chunkNum] = new ArrayList<Entry>();
+    private ArrayList<Entry<K, V>> createChunk(ArrayList<Entry<K, V>>[] chunkList, int chunkNum) {
+        chunkList[chunkNum] = new ArrayList<>();
         return chunkList[chunkNum];
     }
 
     @Override
     public V putIfAbsent(K key, V value) {
-        Entry oldEntry = getEntry(key);
+        Entry<K, V> oldEntry = getEntry(key);
         if (oldEntry == null) {
             checkCapacity();
-            Entry entry = new Entry(key, value);
+            Entry<K, V> entry = new Entry<>(key, value);
             chunkPutNonExisting(this.chunkList, entry);
             currentSize++;
             return value;
@@ -160,11 +152,11 @@ public class HashMap<K, V> implements MyMap<K, V>, Iterable<HashMap.Entry<K, V>>
 
     @Override
     public V put(K key, V value) {
-        Entry oldEntry = getEntry(key);
+        Entry<K, V> oldEntry = getEntry(key);
         if (putIfAbsent(key, value) == null) {
-            V oldValue = (V) oldEntry.getValue();
-            if (!Objects.equals(value, oldEntry.getValue())) {
-                oldEntry.setValue(oldEntry.getValue());
+            V oldValue = oldEntry.getValue();
+            if (!Objects.equals(value, oldValue)) {
+                oldEntry.setValue(value);
             }
             return oldValue;
         } else {
@@ -174,12 +166,11 @@ public class HashMap<K, V> implements MyMap<K, V>, Iterable<HashMap.Entry<K, V>>
 
     private int getChunkNum(Object o) {
         int hashcode = o.hashCode();
-        int chunkNum = Math.abs(hashcode % currentCapacity);
-        return chunkNum;
+        return Math.abs(hashcode % currentCapacity);
     }
 
-    private List<Entry> getChunk(ArrayList[] chunkList, int chunkNum) {
-        List<Entry> list;
+    private List<Entry<K, V>> getChunk(ArrayList<Entry<K, V>>[] chunkList, int chunkNum) {
+        List<Entry<K, V>> list;
         if (chunkList[chunkNum] == null) {
             list = createChunk(chunkList, chunkNum);
         } else {
@@ -188,33 +179,29 @@ public class HashMap<K, V> implements MyMap<K, V>, Iterable<HashMap.Entry<K, V>>
         return list;
     }
 
-    /*    private list<Entry> getChunk(int chunkNum) {
-            return getChunk(this.chunkList, chunkNum);
-        }*/
-    private List<Entry> getChunk(K key) {
+    private List<Entry<K, V>> getChunk(K key) {
         int chunkNum = getChunkNum(key);
         return getChunk(this.chunkList, chunkNum);
     }
 
-    private List<Entry> getChunk(ArrayList[] chunkList, K key) {
+    private List<Entry<K, V>> getChunk(ArrayList<Entry<K, V>>[] chunkList, K key) {
         int chunkNum = getChunkNum(key);
         return getChunk(chunkList, chunkNum);
     }
 
-    private V chunkPutNonExisting(ArrayList[] chunkList, Entry entry) {
-        List<Entry> list = getChunk(chunkList, (K) entry.getKey());
+    private void chunkPutNonExisting(ArrayList<Entry<K, V>>[] chunkList, Entry<K, V> entry) {
+        List<Entry<K, V>> list = getChunk(chunkList, entry.getKey());
         list.add(entry);
-        return null;
     }
 
     @Override
     public V remove(Object key) {
-        List<Entry> list = getChunk((K) key);
-        Entry entry = getEntry(key);
+        List<Entry<K, V>> list = getChunk((K) key);
+        Entry<K, V> entry = getEntry(key);
         if (entry != null) {
             currentSize--;
-            ((ExtendedList<Entry>) list).remove(entry);
-            return (V) entry.getValue();
+            ((ExtendedList<Entry<K, V>>) list).remove(entry);
+            return entry.getValue();
         } else {
             return null;
         }
@@ -222,7 +209,7 @@ public class HashMap<K, V> implements MyMap<K, V>, Iterable<HashMap.Entry<K, V>>
 
     @Override
     public void putAll(Map<? extends K, ? extends V> m) {
-        Set<K> keySet = (Set<K>) m.keySet();
+        Set<? extends K> keySet = m.keySet();
         for (K k : keySet) {
             this.put(k, m.get(k));
         }
@@ -240,7 +227,7 @@ public class HashMap<K, V> implements MyMap<K, V>, Iterable<HashMap.Entry<K, V>>
 
     @Override
     public Set<K> keySet() {
-        Set<K> keySet = new HashSet<K>();
+        Set<K> keySet = new HashSet<>();
         Set<Entry<K, V>> entrySet = entrySet();
         for (Entry<K, V> entry : entrySet) {
             keySet.add(entry.getKey());
@@ -250,7 +237,7 @@ public class HashMap<K, V> implements MyMap<K, V>, Iterable<HashMap.Entry<K, V>>
 
     @Override
     public Collection<V> values() {
-        Collection<V> valuesList = new java.util.ArrayList();
+        Collection<V> valuesList = new java.util.ArrayList<>();
         Set<Entry<K, V>> entrySet = entrySet();
         for (Entry<K, V> entry : entrySet) {
             valuesList.add(entry.getValue());
@@ -259,16 +246,16 @@ public class HashMap<K, V> implements MyMap<K, V>, Iterable<HashMap.Entry<K, V>>
     }
 
     @Override
-    public HashMap.MapIterator iterator() {
+    public Iterator<Entry<K, V>> iterator() {
         return this.new MapIterator();
     }
 
-    public class MapIterator implements Iterator<Entry<K, V>> {
+    private class MapIterator implements Iterator<Entry<K, V>> {
         private Set<K> keySet;
-        private Iterator internalIterator;
+        private Iterator<K> internalIterator;
         private Entry<K, V> lastReturned;
 
-        public MapIterator() {
+        private MapIterator() {
             keySet = HashMap.this.keySet();
             internalIterator = keySet.iterator();
         }
@@ -299,11 +286,11 @@ public class HashMap<K, V> implements MyMap<K, V>, Iterable<HashMap.Entry<K, V>>
 
     @Override
     public Set<Entry<K, V>> entrySet() {
-        Set<Entry<K, V>> entrySet = new HashSet<Entry<K, V>>();
-        for (int i = 0; i < chunkList.length; i++) {
-            if (chunkList[i] != null) {
-                for (int j = 0; j < chunkList[i].size(); j++) {
-                    entrySet.add((Entry) chunkList[i].get(j));
+        Set<Entry<K, V>> entrySet = new HashSet<>();
+        for (ArrayList<Entry<K, V>> arrayList : chunkList) {
+            if (arrayList != null) {
+                for (int j = 0; j < arrayList.size(); j++) {
+                    entrySet.add(arrayList.get(j));
                 }
             }
         }

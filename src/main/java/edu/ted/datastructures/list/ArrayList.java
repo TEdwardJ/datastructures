@@ -1,45 +1,26 @@
 package edu.ted.datastructures.list;
 
-
-import edu.ted.datastructures.list.interfaces.ExtendedList;
-import edu.ted.datastructures.list.interfaces.List;
-
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-public class ArrayList<T> implements List<T>, Iterable<T>, ExtendedList<T> {
+public class ArrayList<T> extends AbstractList<T> {
     private static final int DEFAULT_INITIAL_CAPACITY = 16;
     private T[] array;
-    private int size = 0;
 
     public ArrayList() {
         this(DEFAULT_INITIAL_CAPACITY);
     }
 
+    @SuppressWarnings("unchecked")
     public ArrayList(int initialCapacity) {
         array = (T[]) new Object[initialCapacity];
     }
 
     @Override
-    public int size() {
-        return size;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return size == 0;
-    }
-
-    @Override
-    public boolean contains(Object o) {
-        return indexOf(o) > -1;
-    }
-
-    @Override
     public Iterator<T> iterator() {
-        return new ArrayListIterator();
+        return this.new ArrayListIterator();
     }
 
     public Object[] toArray() {
@@ -48,138 +29,109 @@ public class ArrayList<T> implements List<T>, Iterable<T>, ExtendedList<T> {
         return arrayToReturn;
     }
 
-    @Override
-    public void add(T t) {
-        add(t, size);
+    private void ensureCapacity(){
+        ensureCapacity(1);
     }
 
     private void ensureCapacity(int countToBeAdded) {
-        int newCapacity = array.length;
         if (size + countToBeAdded > array.length) {
-            do {
-                newCapacity = newCapacity * 2 <= Integer.MAX_VALUE ? newCapacity * 2 : Integer.MAX_VALUE;
-            } while (size + countToBeAdded > newCapacity && newCapacity < Integer.MAX_VALUE);
-            T[] newArray = (T[]) new Object[newCapacity];
-            System.arraycopy(array, 0, newArray, 0, size);
-            array = newArray;
+            int newCapacity = (int) (array.length + countToBeAdded * 1.5) + 1;
+            moveArray(newCapacity, size);
         }
     }
 
-    public boolean remove(T element) {
-        int idx = indexOf(element);
-        if (idx != -1) {
-            remove(idx);
+    private void moveArray(int newCapacity, int size) {
+        @SuppressWarnings("unchecked")
+        T[] newArray = (T[]) new Object[newCapacity];
+        System.arraycopy(array, 0, newArray, 0, size);
+        array = newArray;
+    }
+
+    public boolean remove(T value) {
+        int indexToRemove = indexOf(value);
+        if (indexToRemove != -1) {
+            remove(indexToRemove);
             return true;
         }
         return false;
     }
 
+    private void arrayShift(int position) {
+        arrayShift(position, -1);
+    }
+
     private void arrayShift(int position, int shift) {
-        if (size == position) {
-            size += shift;
-            return;
-        }
         System.arraycopy(array, position, array, position + shift, size - position);
         if (shift < 0) {
             array[size - 1] = null;
         }
-        size += shift;
     }
 
-    public boolean containsAll(Collection<?> c) {
-        for (Object element : c) {
-            if (indexOf(element) == -1) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public boolean addAll(Collection<? extends T> c) {
-        return addAll(size, c);
-    }
-
-    public boolean addAll(int index, Collection<? extends T> c) {
+    @Override
+    public boolean addAll(int index, Collection<? extends T> collection) {
         validateIndexEnclosingEnd(index);
-        int colSize = c.size();
-        if (array.length < colSize + size) {
-            ensureCapacity(colSize);
+        int collectionSize = collection.size();
+        if (array.length < collectionSize + size) {
+            ensureCapacity(collectionSize);
         }
         if (index < size) {
-            System.arraycopy(array, index, array, index + colSize, size - index);
+            arrayShift(index, collectionSize);
         }
-        System.arraycopy(c.toArray(), 0, array, index, colSize);
-        size = size + colSize;
+        System.arraycopy(collection.toArray(), 0, array, index, collectionSize);
+        size += collectionSize;
         return true;
-    }
-
-    public boolean removeAll(Collection<?> c) {
-        boolean flag = true;
-        for (Object element : c) {
-            flag = remove((T) element) && flag;
-        }
-        return flag;
     }
 
     @Override
     public void clear() {
+        for (int i = 0; i < size; i++) {
+            array[i] = null;
+        }
         size = 0;
-        array = (T[]) new Object[array.length];
+    }
+
+    public void trimToSize() {
+        if (array.length > size) {
+            moveArray(size, array.length);
+        }
     }
 
     @Override
     public T get(int index) {
         validateIndex(index);
-        return (T) array[index];
-    }
-
-    private void validateIndexEnclosingEnd(int index) {
-        if (index > size || index < 0)
-            throw new IndexOutOfBoundsException(getIndexOutOfBoundMessage(index));
-    }
-
-    private void validateIndex(int index) {
-        if (index >= size || index < 0)
-            throw new IndexOutOfBoundsException(getIndexOutOfBoundMessage(index));
-    }
-
-    private String getIndexOutOfBoundMessage(int index) {
-        return new StringBuilder("Index ")
-                .append(index)
-                .append("is out of bounds ")
-                .append(0)
-                .append(size)
-                .toString();
+        return array[index];
     }
 
     @Override
-    public T set(T element, int index) {
-        validateIndexEnclosingEnd(index);
-        T oldElement = (T) array[index];
-        array[index] = element;
+    public T set(T value, int index) {
+        validateIfEmpty();
+        validateIndex(index);
+        T oldElement = array[index];
+        array[index] = value;
         return oldElement;
     }
 
     @Override
-    public void add(T element, int index) {
+    public void add(T value, int index) {
         validateIndexEnclosingEnd(index);
-        ensureCapacity(1);
-        array[index] = element;
+        ensureCapacity();
+        array[index] = value;
         size++;
     }
 
     @Override
     public T remove(int index) {
         validateIndex(index);
-        T element = (T) array[index];
-        arrayShift(index + 1, -1);
+        T element = array[index];
+        arrayShift(index + 1);
+        size--;
         return element;
     }
 
     @Override
-    public int indexOf(Object o) {
+    public int indexOf(T value) {
         for (int i = 0; i < size; i++) {
-            if (Objects.equals(o, array[i])) {
+            if (Objects.equals(value, array[i])) {
                 return i;
             }
         }
@@ -187,9 +139,9 @@ public class ArrayList<T> implements List<T>, Iterable<T>, ExtendedList<T> {
     }
 
     @Override
-    public int lastIndexOf(Object o) {
+    public int lastIndexOf(T value) {
         for (int i = size - 1; i >= 0; i--) {
-            if (Objects.equals(o, array[i])) {
+            if (Objects.equals(value, array[i])) {
                 return i;
             }
         }
@@ -198,16 +150,16 @@ public class ArrayList<T> implements List<T>, Iterable<T>, ExtendedList<T> {
 
     public class ArrayListIterator implements Iterator<T> {
         private int pointer;
-        private int indexToBeRemoved = -1;
+        private int indexOfRemovedElement = -1;
         private int lastIndex;
 
         @Override
         public void remove() {
-            if (indexToBeRemoved > -1 || pointer < 0) {
-                throw new IllegalStateException("The element already was removed");
+            if (indexOfRemovedElement > -1 || pointer < 0) {
+                throw new IllegalStateException("The element was already removed");
             }
-            indexToBeRemoved = lastIndex;
-            ArrayList.this.remove(indexToBeRemoved);
+            ArrayList.this.remove(lastIndex);
+            indexOfRemovedElement = lastIndex;
         }
 
         @Override
@@ -222,7 +174,7 @@ public class ArrayList<T> implements List<T>, Iterable<T>, ExtendedList<T> {
             }
             lastIndex = pointer;
             pointer++;
-            indexToBeRemoved = -1;
+            indexOfRemovedElement = -1;
             return array[lastIndex];
         }
     }

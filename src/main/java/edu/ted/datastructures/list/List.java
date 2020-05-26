@@ -1,6 +1,6 @@
-package edu.ted.datastructures.list.interfaces;
+package edu.ted.datastructures.list;
 
-public interface List<T> {
+public interface List<T> extends Iterable<T> {
     // add value to the end of the list
     void add(T value);
 

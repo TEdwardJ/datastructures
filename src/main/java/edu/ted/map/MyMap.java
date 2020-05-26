@@ -1,13 +1,12 @@
-package edu.ted.map.interfaces;
-
-import edu.ted.map.HashMap;
+package edu.ted.map;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public interface MyMap<K,V> {
-    public int size();
+public interface MyMap<K, V> {
+    int size();
 
     boolean isEmpty();
 
@@ -15,7 +14,7 @@ public interface MyMap<K,V> {
 
     boolean containsValue(Object value);
 
-    V putIfAbsent (K key, V value);
+    V putIfAbsent(K key, V value);
 
     V get(K key);
 
@@ -30,7 +29,8 @@ public interface MyMap<K,V> {
     Set<K> keySet();
 
     Collection<V> values();
-    HashMap.MapIterator iterator();
+
+    Iterator<HashMap.Entry<K, V>> iterator();
 
     Set<HashMap.Entry<K, V>> entrySet();
 }
