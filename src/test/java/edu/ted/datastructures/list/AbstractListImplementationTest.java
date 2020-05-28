@@ -2,7 +2,6 @@ package edu.ted.datastructures.list;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 
 import java.util.Arrays;
@@ -15,15 +14,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 abstract class AbstractListImplementationTest {
 
-    private List<String> testList;
-    private ExtendedList<String> extendedList;
+    private ExtendedList<String> testList;
 
-    abstract List getList();
+    abstract ExtendedList<String> getList();
 
     @BeforeEach
     void initList() {
         testList = getList();
-        extendedList = (ExtendedList<String>) testList;
+        testList = (ExtendedList<String>) testList;
     }
 
     @Test
@@ -67,14 +65,14 @@ abstract class AbstractListImplementationTest {
 
     @Test
     void removeObject() {
-        assertFalse(extendedList.remove("Empty"));
+        assertFalse(testList.remove("Empty"));
         for (int i = 0; i < 64; i++) {
             testList.add("Ten" + i);
         }
         String toRemove = testList.get(3);
         int size = testList.size();
-        assertTrue(extendedList.remove(toRemove));
-        assertFalse(extendedList.remove("Empty"));
+        assertTrue(testList.remove(toRemove));
+        assertFalse(testList.remove("Empty"));
         assertEquals(size - 1, testList.size());
     }
 
@@ -91,7 +89,7 @@ abstract class AbstractListImplementationTest {
     }
 
     void addAll() {
-        extendedList.addAll(Arrays.asList("Three", "One", "Two"));
+        testList.addAll(Arrays.asList("Three", "One", "Two"));
     }
 
     @Test
@@ -100,12 +98,12 @@ abstract class AbstractListImplementationTest {
         java.util.ArrayList<Object> objList = new java.util.ArrayList<>();
         objList.add(new Object());
         objList.addAll(Arrays.asList("Ten", "Eleven", "Twelve"));
-        extendedList.removeAll(objList);
+        testList.removeAll(objList);
     }
 
     @Test
     void addAllCollection() {
-        extendedList.addAll(Arrays.asList("Three", "One", "Two"));
+        testList.addAll(Arrays.asList("Three", "One", "Two"));
         assertTrue(testList.size() > 0);
         assertEquals(3, testList.size());
     }
@@ -113,7 +111,7 @@ abstract class AbstractListImplementationTest {
     @Test
     void addAllWithIndex() {
         addAll();
-        extendedList.addAll(1, Arrays.asList("Four", "Six", "Five"));
+        testList.addAll(1, Arrays.asList("Four", "Six", "Five"));
         assertEquals(0, testList.indexOf("Three"));
         assertEquals(1, testList.indexOf("Four"));
         assertEquals(4, testList.indexOf("One"));
@@ -123,7 +121,7 @@ abstract class AbstractListImplementationTest {
     @Test
     void addAllWithIndexToEnd() {
         addAll();
-        extendedList.addAll(testList.size(), Arrays.asList("Four", "Six", "Five"));
+        testList.addAll(testList.size(), Arrays.asList("Four", "Six", "Five"));
         assertEquals(0, testList.indexOf("Three"));
         assertEquals(3, testList.indexOf("Four"));
         assertEquals(1, testList.indexOf("One"));
@@ -133,7 +131,7 @@ abstract class AbstractListImplementationTest {
     @Test
     void addAllOutOfBounds() {
         addAll();
-        Throwable thrown = assertThrows(IndexOutOfBoundsException.class, () -> extendedList.addAll(11, Arrays.asList("Four", "Six", "Five")));
+        Throwable thrown = assertThrows(IndexOutOfBoundsException.class, () -> testList.addAll(11, Arrays.asList("Four", "Six", "Five")));
         assertEquals("Index 11 is out of bounds 0..3", thrown.getMessage());
     }
 
@@ -141,11 +139,11 @@ abstract class AbstractListImplementationTest {
     void removeAll() {
         addAll();
         assertEquals(3, testList.size());
-        extendedList.addAll(1, Arrays.asList("Four", "Six", "Five"));
+        testList.addAll(1, Arrays.asList("Four", "Six", "Five"));
         assertEquals(6, testList.size());
         assertEquals("Two", testList.get(5));
-        assertTrue(extendedList.removeAll(Arrays.asList("Three", "One", "Two")));
-        assertFalse(extendedList.removeAll(Arrays.asList("Three1", "Six", "Two1")));
+        assertTrue(testList.removeAll(Arrays.asList("Three", "One", "Two")));
+        assertFalse(testList.removeAll(Arrays.asList("Three1", "Six", "Two1")));
         assertEquals(2, testList.size());
         assertEquals(-1, testList.indexOf("One"));
         assertTrue(testList.indexOf("Five") > -1);
@@ -156,7 +154,7 @@ abstract class AbstractListImplementationTest {
         addAll();
         assertEquals(3, testList.size());
         assertEquals("Two", testList.get(2));
-        assertFalse(extendedList.removeAll(Arrays.asList("fff", "rrrr", "www")));
+        assertFalse(testList.removeAll(Arrays.asList("fff", "rrrr", "www")));
         assertEquals(3, testList.size());
     }
 
@@ -338,7 +336,7 @@ abstract class AbstractListImplementationTest {
     @Test
     void toArray() {
         addAll();
-        Object[] arr = extendedList.toArray();
+        Object[] arr = testList.toArray();
         assertNotNull(arr);
         assertEquals(3, arr.length);
         assertArrayEquals(new Object[]{"Three", "One", "Two"}, arr);

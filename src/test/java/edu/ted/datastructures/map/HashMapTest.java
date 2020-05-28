@@ -1,10 +1,7 @@
 package edu.ted.datastructures.map;
 
-import edu.ted.map.HashMap;
-import edu.ted.map.MyMap;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 import java.util.*;
 
@@ -13,31 +10,31 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("Map Implementation Testing")
 public class HashMapTest {
 
-    private MyMap<String, String> testMap = new HashMap<String, String>();
+    private Map<String, String> testMap = new HashMap<>();
 
     @Test
-    public void size() {
+    public void givenEmtpyGetSizeThenPutAndGetSizeAgain() {
         assertEquals(0, testMap.size());
         testMap.put("key0", "value0");
         assertEquals(1, testMap.size());
     }
 
     @Test
-    public void put() {
+    public void givenEmptyPutThenReplaceValueOfKeyAndGetOldValue() {
         assertNull(testMap.put("key1", "value1"));
         assertEquals("value1", testMap.put("key1", "value2"));
     }
 
     @Test
-    public void putIfAbsent() {
-        assertEquals("value1",testMap.putIfAbsent("key1", "value1"));
+    public void givenEmptyPutIfAbsentThenPutIfAbsentWithExistingKey() {
+        assertNull(testMap.putIfAbsent("key1", "value1"));
         assertEquals("value1", testMap.put("key1", "value2"));
-        testMap.put("key2","value2");
-        assertNull(testMap.putIfAbsent("key2", "value1"));
+        testMap.put("key2", "value2");
+        assertEquals("value2", testMap.putIfAbsent("key2", "value1"));
     }
 
     @Test
-    public void putWithResize() {
+    public void givenEmptyPut25ElementsTToForceResizeThenCheckEachKeyIfExistsThenCheckSize() {
         assertNull(testMap.put("key1", "value1"));
         for (int i = 0; i < 25; i++) {
             if (i == 1) {
@@ -46,14 +43,14 @@ public class HashMapTest {
                 assertNull(testMap.put("key" + i, "value" + i));
             }
         }
-        for (int i = 0; i < 25; i++) {
+        for (int i = 0; i < testMap.size(); i++) {
             assertTrue(testMap.containsKey("key" + i));
         }
         assertEquals(25, testMap.size());
     }
 
     @Test
-    public void get() {
+    public void givenEmptyGetNonExistingThenPutCheckSizeThenGetExisting() {
         assertNull(testMap.get("NonExisting"));
         assertEquals(0, testMap.size());
         testMap.put("key0", "value0");
@@ -62,7 +59,7 @@ public class HashMapTest {
     }
 
     @Test
-    public void remove() {
+    public void giivenEmptyRemoveNonExistingThenPutThenRemoveBothNonAndExisting() {
         assertNull(testMap.remove("NonExisting"));
         assertEquals(0, testMap.size());
         testMap.put("key0", "value0");
@@ -74,7 +71,7 @@ public class HashMapTest {
     }
 
     @Test
-    public void clear() {
+    public void addCheckSizeThenClearThenCheckSizeAgain() {
         testMap.put("key0", "value0");
         assertEquals(1, testMap.size());
         testMap.put("key1", "value0");
@@ -84,7 +81,7 @@ public class HashMapTest {
     }
 
     @Test
-    public void keySet() {
+    public void addEntriesThenGetKeySetAndCheckExistanceOfDifferentKeys() {
         testMap.put("key0", "value0");
         testMap.put("key1", "value0");
         testMap.put("key0", "value1");
@@ -98,12 +95,12 @@ public class HashMapTest {
     }
 
     @Test
-    public void values() {
+    public void addThenGetValuesListAndCheckExistanceAndSizeAndIfContains() {
         testMap.put("key0", "value0");
         testMap.put("key1", "value1");
         testMap.put("key2", "value1");
         testMap.put("key3", "value3");
-        List<String> valuesList = (List) testMap.values();
+        List<String> valuesList = (List<String>) testMap.values();
         assertEquals(4, testMap.size());
         assertTrue(valuesList.contains("value0"));
         assertTrue(valuesList.contains("value1"));
@@ -115,7 +112,7 @@ public class HashMapTest {
     }
 
     @Test
-    public void isEmpty() {
+    public void checkIfEmptyThenAddAndCheckAgain() {
         assertTrue(testMap.isEmpty());
         testMap.put("123", "321");
         assertFalse(testMap.isEmpty());
@@ -123,7 +120,7 @@ public class HashMapTest {
     }
 
     @Test
-    public void containsKey() {
+    public void checkIffEmptyMapContainsKeyThenAddAndCheckAgain() {
         assertFalse(testMap.containsKey("Key0"));
         testMap.put("key0", "321");
         assertTrue(testMap.containsKey("key0"));
@@ -132,7 +129,7 @@ public class HashMapTest {
     }
 
     @Test
-    public void containsValue() {
+    public void checkIfContainsAddedValueThenRemoveAndCheckAgain() {
         assertFalse(testMap.containsValue("Value0"));
         testMap.put("key0", "Value0");
         assertTrue(testMap.containsValue("Value0"));
@@ -142,11 +139,11 @@ public class HashMapTest {
     }
 
     @Test
-    public void putAll() {
+    public void put3ByOneThenPutCollectionThenCheckKeysAndValuesIfExist() {
         testMap.put("key0", "value0");
         testMap.put("key1", "value1");
         testMap.put("key2", "value2");
-        Map<String, String> mapToAdd = new java.util.HashMap();
+        java.util.Map<String, String> mapToAdd = new java.util.HashMap<>();
         mapToAdd.put("Key0", "Value0");
         mapToAdd.put("Key1", "Value1");
         mapToAdd.put("Key2", "Value2");
@@ -160,7 +157,7 @@ public class HashMapTest {
     }
 
     @Test
-    public void iterator() {
+    public void iterator_getAllElementsAndCatchExceptionAtLastRepeatedNext() {
         testMap.put("key0", "value0");
         testMap.put("key1", "value1");
         testMap.put("key2", "value2");
@@ -170,20 +167,15 @@ public class HashMapTest {
         while (iter.hasNext()) {
             HashMap.Entry<String, String> entry = iter.next();
             counter++;
-            assertTrue(entry.getKey().toString().contains("key"));
-            assertTrue(entry.getValue().toString().contains("value"));
+            assertTrue(entry.getKey().contains("key"));
+            assertTrue(entry.getValue().contains("value"));
         }
         assertEquals(3, counter);
-        assertThrows(NoSuchElementException.class, new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                iter.next();
-            }
-        });
+        assertThrows(NoSuchElementException.class, iter::next);
     }
 
     @Test
-    public void iteratorRemoveTwice() {
+    public void iterator_whenRemoveElementTwice() {
         testMap.put("key0", "value0");
         testMap.put("key1", "value1");
         testMap.put("key2", "value2");
@@ -194,11 +186,31 @@ public class HashMapTest {
         assertEquals(2, testMap.size());
         assertFalse(testMap.containsKey("key1"));
         assertTrue(testMap.containsKey("key2"));
-        assertThrows(IllegalStateException.class, new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                iter.remove();
+        assertThrows(IllegalStateException.class, iter::remove);
+    }
+
+    @Test
+    public void givenIteratorThenRemoveFromMapDirectlyAndGetConcurrentModificationException() {
+        testMap.put("key0", "value0");
+        testMap.put("key1", "value1");
+        testMap.put("key2", "value2");
+        Set<String> keySet = testMap.keySet();
+        Iterator<Map.Entry<String, String>> iterator = testMap.iterator();
+        int counter = 0;
+        Map.Entry<String, String> entry;
+        while (iterator.hasNext()) {
+            if (counter == 2) {
+                Throwable thrown = assertThrows(ConcurrentModificationException.class, iterator::next);
+                assertEquals("The element does not exist now", thrown.getMessage());
+                return;
+            } else {
+                entry = iterator.next();
             }
-        });
+            keySet.remove(entry.getKey());
+            if (counter == 1) {
+                testMap.remove(keySet.iterator().next());
+            }
+            counter++;
+        }
     }
 }

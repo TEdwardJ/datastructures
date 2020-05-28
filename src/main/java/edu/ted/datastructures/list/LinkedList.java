@@ -128,10 +128,13 @@ public class LinkedList<T> extends AbstractList<T> {
     }
 
     private Node<T> findNode(int index) {
+        if (size == 0) {
+            return null;
+        }
         if (index <= size / 2) {
-            return tail == null ? null : findNodeFunctional(size - 1 - index, tail, node -> node.prev);
+            return findNodeFunctional(size - 1 - index, tail, node -> node.prev);
         } else {
-            return head == null ? null : findNodeFunctional(index, head, node -> node.next);
+            return findNodeFunctional(index, head, node -> node.next);
         }
     }
 

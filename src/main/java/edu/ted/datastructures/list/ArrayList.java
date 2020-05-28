@@ -29,24 +29,6 @@ public class ArrayList<T> extends AbstractList<T> {
         return arrayToReturn;
     }
 
-    private void ensureCapacity(){
-        ensureCapacity(1);
-    }
-
-    private void ensureCapacity(int countToBeAdded) {
-        if (size + countToBeAdded > array.length) {
-            int newCapacity = (int) (array.length + countToBeAdded * 1.5) + 1;
-            moveArray(newCapacity, size);
-        }
-    }
-
-    private void moveArray(int newCapacity, int size) {
-        @SuppressWarnings("unchecked")
-        T[] newArray = (T[]) new Object[newCapacity];
-        System.arraycopy(array, 0, newArray, 0, size);
-        array = newArray;
-    }
-
     public boolean remove(T value) {
         int indexToRemove = indexOf(value);
         if (indexToRemove != -1) {
@@ -54,17 +36,6 @@ public class ArrayList<T> extends AbstractList<T> {
             return true;
         }
         return false;
-    }
-
-    private void arrayShift(int position) {
-        arrayShift(position, -1);
-    }
-
-    private void arrayShift(int position, int shift) {
-        System.arraycopy(array, position, array, position + shift, size - position);
-        if (shift < 0) {
-            array[size - 1] = null;
-        }
     }
 
     @Override
@@ -92,7 +63,7 @@ public class ArrayList<T> extends AbstractList<T> {
 
     public void trimToSize() {
         if (array.length > size) {
-            moveArray(size, array.length);
+            resizeArray(size);
         }
     }
 
@@ -149,10 +120,10 @@ public class ArrayList<T> extends AbstractList<T> {
     }
 
     public class ArrayListIterator implements Iterator<T> {
+
         private int pointer;
         private int indexOfRemovedElement = -1;
         private int lastIndex;
-
         @Override
         public void remove() {
             if (indexOfRemovedElement > -1 || pointer < 0) {
@@ -176,6 +147,35 @@ public class ArrayList<T> extends AbstractList<T> {
             pointer++;
             indexOfRemovedElement = -1;
             return array[lastIndex];
+        }
+
+    }
+    private void ensureCapacity(){
+        ensureCapacity(1);
+    }
+
+    private void ensureCapacity(int countToBeAdded) {
+        if (size + countToBeAdded > array.length) {
+            int newCapacity = (int) (array.length + countToBeAdded * 1.5) + 1;
+            resizeArray(newCapacity);
+        }
+    }
+
+    private void resizeArray(int newCapacity) {
+        @SuppressWarnings("unchecked")
+        T[] newArray = (T[]) new Object[newCapacity];
+        System.arraycopy(array, 0, newArray, 0, size);
+        array = newArray;
+    }
+
+    private void arrayShift(int position) {
+        arrayShift(position, -1);
+    }
+
+    private void arrayShift(int position, int shift) {
+        System.arraycopy(array, position, array, position + shift, size - position);
+        if (shift < 0) {
+            array[size - 1] = null;
         }
     }
 }

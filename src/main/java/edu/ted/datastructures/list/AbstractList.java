@@ -21,25 +21,25 @@ public abstract class AbstractList<T> implements ExtendedList<T> {
         return indexOf(value) != -1;
     }
 
-    protected void validateIndexEnclosingEnd(int index) {
+    void validateIndexEnclosingEnd(int index) {
         if (index > size || index < 0) {
             throw new IndexOutOfBoundsException(getIndexOutOfBoundMessage(index, size));
         }
     }
 
-    protected void validateIndex(int index) {
+    void validateIndex(int index) {
         if (index >= size || index < 0) {
             throw new IndexOutOfBoundsException(getIndexOutOfBoundMessage(index, size - 1));
         }
     }
 
-    protected void validateIfEmpty() {
+    void validateIfEmpty() {
         if (size == 0) {
             throw new IndexOutOfBoundsException("Can`t apply set on empty list");
         }
     }
 
-    protected String getIndexOutOfBoundMessage(int index, int highBoundary) {
+    String getIndexOutOfBoundMessage(int index, int highBoundary) {
         return new StringBuilder("Index ")
                 .append(index)
                 .append(" is out of bounds ")
