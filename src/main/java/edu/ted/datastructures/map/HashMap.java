@@ -190,7 +190,7 @@ public class HashMap<K, V> implements Map<K, V> {
         @Override
         public Entry<K, V> next() {
             if (!hasNext()) {
-                throw new NoSuchElementException();
+                throw new NoSuchElementException("All elements were fetched in this iterator");
             }
             lastReturned = getEntry(internalIterator.next());
             if (lastReturned == null) {

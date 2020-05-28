@@ -171,7 +171,8 @@ public class HashMapTest {
             assertTrue(entry.getValue().contains("value"));
         }
         assertEquals(3, counter);
-        assertThrows(NoSuchElementException.class, iter::next);
+        Throwable thrown = assertThrows(NoSuchElementException.class, iter::next);
+        assertEquals("", thrown.getMessage());
     }
 
     @Test
