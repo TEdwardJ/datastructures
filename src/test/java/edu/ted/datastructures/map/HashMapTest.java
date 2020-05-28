@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisplayName("Map Implementation Testing")
 public class HashMapTest {
@@ -172,7 +173,7 @@ public class HashMapTest {
         }
         assertEquals(3, counter);
         Throwable thrown = assertThrows(NoSuchElementException.class, iter::next);
-        assertEquals("", thrown.getMessage());
+        assertEquals("All elements were fetched in this iterator", thrown.getMessage());
     }
 
     @Test
@@ -187,7 +188,8 @@ public class HashMapTest {
         assertEquals(2, testMap.size());
         assertFalse(testMap.containsKey("key1"));
         assertTrue(testMap.containsKey("key2"));
-        assertThrows(IllegalStateException.class, iter::remove);
+        Throwable thrown = assertThrows(IllegalStateException.class, iter::remove);
+        assertEquals("The element was already removed",thrown.getMessage());
     }
 
     @Test

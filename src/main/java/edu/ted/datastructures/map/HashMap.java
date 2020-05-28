@@ -202,7 +202,7 @@ public class HashMap<K, V> implements Map<K, V> {
         @Override
         public void remove() {
             if (lastReturned == null) {
-                throw new IllegalStateException();
+                throw new IllegalStateException("The element was already removed");
             }
             HashMap.this.remove(lastReturned.getKey());
             lastReturned = null;
