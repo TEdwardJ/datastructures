@@ -6,6 +6,6 @@ import org.junit.jupiter.api.DisplayName;
 public class LinkedListTest extends AbstractListImplementationTest {
     @Override
     public ExtendedList<String> getList() {
-        return new LinkedList<String>();
+        return new LinkedList<>();
     }
 }

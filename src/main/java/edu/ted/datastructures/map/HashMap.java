@@ -1,6 +1,5 @@
 package edu.ted.datastructures.map;
 
-
 import edu.ted.datastructures.list.ArrayList;
 import edu.ted.datastructures.list.ExtendedList;
 import edu.ted.datastructures.list.List;
@@ -67,13 +66,13 @@ public class HashMap<K, V> implements Map<K, V> {
     @Override
     public V putIfAbsent(K key, V value) {
         Entry<K, V> oldEntry = getEntry(key);
-        if (oldEntry == null) {
-            checkCapacity();
-            putIntoChunk(new Entry<>(key, value));
-            currentSize++;
-            return null;
+        if (oldEntry != null) {
+            return oldEntry.getValue();
         }
-        return oldEntry.getValue();
+        checkCapacity();
+        putIntoChunk(new Entry<>(key, value));
+        currentSize++;
+        return null;
     }
 
     @Override
@@ -85,9 +84,8 @@ public class HashMap<K, V> implements Map<K, V> {
                 oldEntry.setValue(value);
             }
             return oldValue;
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override

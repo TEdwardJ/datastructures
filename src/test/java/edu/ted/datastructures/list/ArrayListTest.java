@@ -6,6 +6,6 @@ import org.junit.jupiter.api.DisplayName;
 public class ArrayListTest extends AbstractListImplementationTest {
     @Override
     public ExtendedList<String> getList() {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 }

@@ -100,6 +100,7 @@ public class ArrayList<T> extends AbstractList<T> {
     }
 
     @Override
+
     public int indexOf(T value) {
         for (int i = 0; i < size; i++) {
             if (Objects.equals(value, array[i])) {
