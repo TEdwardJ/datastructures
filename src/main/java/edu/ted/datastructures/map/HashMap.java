@@ -19,12 +19,12 @@ public class HashMap<K, V> implements Map<K, V> {
 
     public HashMap() {
         currentSize = 0;
-        chunkList = new ArrayList[INITIAL_CAPACITY];
+        chunkList = (ArrayList<Entry<K, V>>[])new ArrayList[INITIAL_CAPACITY];
         this.loadRatio = LOAD_RATIO;
     }
 
     public HashMap(int capacity, double loadRatio) {
-        chunkList = new ArrayList[capacity];
+        chunkList = (ArrayList<Entry<K, V>>[])new ArrayList[capacity];
         this.loadRatio = loadRatio;
     }
 
@@ -82,7 +82,6 @@ public class HashMap<K, V> implements Map<K, V> {
         }
         ensureCapacity();
         putIntoChunk(new Entry<>(key, value));
-        currentSize++;
         return null;
     }
 
@@ -129,8 +128,7 @@ public class HashMap<K, V> implements Map<K, V> {
                 chunk.clear();
             }
         }
-        currentSize = 0;
-        currentChunkSize = 0;
+        currentSize = currentChunkSize = 0;
     }
 
     @Override
@@ -155,7 +153,7 @@ public class HashMap<K, V> implements Map<K, V> {
 
     @Override
     public Iterator<Entry<K, V>> iterator() {
-        return this.new MapIterator();
+        return new MapIterator();
     }
 
     private ExtendedList<Entry<K, V>> getChunkByKey(int chunkNum) {
@@ -178,6 +176,7 @@ public class HashMap<K, V> implements Map<K, V> {
             currentChunkSize++;
         }
         chunk.add(entry);
+        currentSize++;
     }
 
     private class MapIterator implements Iterator<Entry<K, V>> {
@@ -243,14 +242,12 @@ public class HashMap<K, V> implements Map<K, V> {
     private void ensureCapacity() {
         if (loadRatio * chunkList.length < (currentChunkSize + 1)) {
             Set<Entry<K, V>> set = entrySet();
-            int newCapacity = chunkList.length * 2;
 
-            currentChunkSize = 0;
-            chunkList = new ArrayList[newCapacity];
+            currentChunkSize = currentSize = 0;
+            chunkList = (ArrayList<Entry<K, V>>[])new ArrayList[chunkList.length * 2];
             for (Entry<K, V> entry : set) {
                 putIntoChunk(entry);
             }
-            currentSize = set.size();
         }
     }
 }
