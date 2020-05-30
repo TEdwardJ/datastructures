@@ -68,9 +68,17 @@ public class HashMap<K, V> implements Map<K, V> {
 
     @Override
     public V putIfAbsent(K key, V value) {
-        Entry<K, V> oldEntry = getEntry(key);
+        Entry<K, V> oldEntry = putIfAbsentOrReturnEntry(key, value);
         if (oldEntry != null) {
             return oldEntry.getValue();
+        }
+        return null;
+    }
+
+    private Entry<K, V> putIfAbsentOrReturnEntry(K key, V value) {
+        Entry<K, V> oldEntry = getEntry(key);
+        if (oldEntry != null) {
+            return oldEntry;
         }
         checkCapacity();
         putIntoChunk(new Entry<>(key, value));
@@ -80,8 +88,8 @@ public class HashMap<K, V> implements Map<K, V> {
 
     @Override
     public V put(K key, V value) {
-        if (putIfAbsent(key, value) != null) {
-            Entry<K, V> oldEntry = getEntry(key);
+        Entry<K, V> oldEntry = putIfAbsentOrReturnEntry(key, value);
+        if (oldEntry != null) {
             V oldValue = oldEntry.getValue();
             if (!Objects.equals(value, oldValue)) {
                 oldEntry.setValue(value);
@@ -237,10 +245,9 @@ public class HashMap<K, V> implements Map<K, V> {
         if (loadRatio * chunkList.length < (currentChunkSize + 1)) {
             Set<Entry<K, V>> set = entrySet();
             int newCapacity = chunkList.length * 2;
-            ArrayList<Entry<K, V>>[] newChunkList = new ArrayList[newCapacity];
 
             currentChunkSize = 0;
-            chunkList = newChunkList;
+            chunkList = new ArrayList[newCapacity];
             for (Entry<K, V> entry : set) {
                 putIntoChunk(entry);
             }

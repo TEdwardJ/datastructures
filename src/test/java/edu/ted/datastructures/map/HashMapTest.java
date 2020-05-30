@@ -216,4 +216,11 @@ public class HashMapTest {
             counter++;
         }
     }
+
+    @Test
+    public void givenEmptyPutNullValueThenPutNonNullValueCheckIfSuccess(){
+        testMap.put("key0",null);
+        testMap.put("key0","value0");
+        assertEquals("value0",testMap.get("key0"));
+    }
 }
