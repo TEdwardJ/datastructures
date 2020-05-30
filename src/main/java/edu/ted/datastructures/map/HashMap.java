@@ -15,14 +15,17 @@ public class HashMap<K, V> implements Map<K, V> {
 
     private int currentSize;
     private int currentChunkSize;
+    private double loadRatio;
 
     public HashMap() {
         currentSize = 0;
         chunkList = new ArrayList[INITIAL_CAPACITY];
+        this.loadRatio = LOAD_RATIO;
     }
 
-    public HashMap(int capacity) {
+    public HashMap(int capacity, double loadRatio) {
         chunkList = new ArrayList[capacity];
+        this.loadRatio = loadRatio;
     }
 
     @Override
@@ -231,7 +234,7 @@ public class HashMap<K, V> implements Map<K, V> {
     }
 
     private void checkCapacity() {
-        if (LOAD_RATIO * chunkList.length < (currentChunkSize + 1)) {
+        if (loadRatio * chunkList.length < (currentChunkSize + 1)) {
             Set<Entry<K, V>> set = entrySet();
             int newCapacity = chunkList.length * 2;
             ArrayList<Entry<K, V>>[] newChunkList = new ArrayList[newCapacity];
