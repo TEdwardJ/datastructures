@@ -80,7 +80,7 @@ public class HashMap<K, V> implements Map<K, V> {
         if (oldEntry != null) {
             return oldEntry;
         }
-        checkCapacity();
+        ensureCapacity();
         putIntoChunk(new Entry<>(key, value));
         currentSize++;
         return null;
@@ -175,7 +175,6 @@ public class HashMap<K, V> implements Map<K, V> {
     private void putIntoChunk(Entry<K, V> entry) {
         List<Entry<K, V>> chunk = getChunk(entry.getKey());
         if (chunk.size() == 0) {
-            checkCapacity();
             currentChunkSize++;
         }
         chunk.add(entry);
@@ -241,7 +240,7 @@ public class HashMap<K, V> implements Map<K, V> {
         return null;
     }
 
-    private void checkCapacity() {
+    private void ensureCapacity() {
         if (loadRatio * chunkList.length < (currentChunkSize + 1)) {
             Set<Entry<K, V>> set = entrySet();
             int newCapacity = chunkList.length * 2;
