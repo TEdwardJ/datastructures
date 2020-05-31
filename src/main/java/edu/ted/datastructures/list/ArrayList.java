@@ -40,7 +40,7 @@ public class ArrayList<T> extends AbstractList<T> {
 
     @Override
     public boolean addAll(int index, Collection<? extends T> collection) {
-        validateIndexEnclosingEnd(index);
+        validateIndexForAdd(index);
         int collectionSize = collection.size();
         if (array.length < collectionSize + size) {
             ensureCapacity(collectionSize);
@@ -75,7 +75,7 @@ public class ArrayList<T> extends AbstractList<T> {
 
     @Override
     public T set(T value, int index) {
-        validateIfEmpty();
+        validateIfEmpty("Can`t apply set on empty list");
         validateIndex(index);
         T oldElement = array[index];
         array[index] = value;
@@ -84,7 +84,7 @@ public class ArrayList<T> extends AbstractList<T> {
 
     @Override
     public void add(T value, int index) {
-        validateIndexEnclosingEnd(index);
+        validateIndexForAdd(index);
         ensureCapacity();
         array[index] = value;
         size++;

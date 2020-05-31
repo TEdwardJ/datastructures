@@ -181,7 +181,7 @@ public class HashMapTest {
         testMap.put("key0", "value0");
         testMap.put("key1", "value1");
         testMap.put("key2", "value2");
-        final Iterator<HashMap.Entry<String, String>> iter = ((Iterable) testMap).iterator();
+        final Iterator<HashMap.HashMapEntry<String, String>> iter = ((Iterable) testMap).iterator();
         assertTrue(iter.hasNext());
         assertEquals("key1", iter.next().getKey());
         iter.remove();

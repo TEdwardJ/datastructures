@@ -424,9 +424,9 @@ public class HashMapTestA {
         String value = "value";
         map.put(key, value);
 
-        Iterator<HashMap.Entry<String, String>> iterator = map.iterator();
+        Iterator<Map.Entry<String, String>> iterator = map.iterator();
 
-        HashMap.Entry<String, String> entry = iterator.next();
+        Map.Entry<String, String> entry = iterator.next();
         assertThat(entry.getKey(), is(key));
         assertThat(entry.getValue(), is(value));
 
@@ -461,15 +461,15 @@ public class HashMapTestA {
         map.put(keyY, keyYValue);
         map.put(keyZ, keyZValue);
 
-        Iterator<HashMap.Entry<String, String>> iterator = map.iterator();
+        Iterator<Map.Entry<String, String>> iterator = map.iterator();
 
-        HashMap.Entry<String, String> resultQ = iterator.next();
-        HashMap.Entry<String, String> resultW = iterator.next();
-        HashMap.Entry<String, String> resultE = iterator.next();
-        HashMap.Entry<String, String> resultR = iterator.next();
-        HashMap.Entry<String, String> resultT = iterator.next();
-        HashMap.Entry<String, String> resultY = iterator.next();
-        HashMap.Entry<String, String> resultZ = iterator.next();
+        Map.Entry<String, String> resultQ = iterator.next();
+        Map.Entry<String, String> resultW = iterator.next();
+        Map.Entry<String, String> resultE = iterator.next();
+        Map.Entry<String, String> resultR = iterator.next();
+        Map.Entry<String, String> resultT = iterator.next();
+        Map.Entry<String, String> resultY = iterator.next();
+        Map.Entry<String, String> resultZ = iterator.next();
 
         assertThat(resultQ.getKey(), is(keyQ));
         assertThat(resultQ.getValue(), is(keyQValue));
@@ -504,7 +504,7 @@ public class HashMapTestA {
         HashMap<String, String> map = new HashMap<>();
         map.put("key", "value");
 
-        Iterator<HashMap.Entry<String, String>> iterator = map.iterator();
+        Iterator<Map.Entry<String, String>> iterator = map.iterator();
         assertThat(iterator.hasNext(), is(true));
         assertThat(iterator.hasNext(), is(true));
 

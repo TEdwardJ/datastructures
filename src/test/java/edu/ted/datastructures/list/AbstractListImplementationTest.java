@@ -21,7 +21,6 @@ abstract class AbstractListImplementationTest {
     @BeforeEach
     void initList() {
         testList = getList();
-        testList = (ExtendedList<String>) testList;
     }
 
     @Test

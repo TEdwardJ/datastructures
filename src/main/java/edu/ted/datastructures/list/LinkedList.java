@@ -30,14 +30,13 @@ public class LinkedList<T> extends AbstractList<T> {
         if (size == 0) {
             return false;
         }
-        if (head == null) {
-            return false;
-        }
         Node<T> currentNode = head;
-        while (!Objects.equals(currentNode.value, value) && currentNode.next != null) {
+        while (currentNode != null) {
+            if (Objects.equals(currentNode.value, value)) {
+                break;
+            }
             currentNode = currentNode.next;
         }
-        currentNode = Objects.equals(currentNode.value, value) ? currentNode : null;
         return remove(currentNode);
     }
 
@@ -51,7 +50,7 @@ public class LinkedList<T> extends AbstractList<T> {
 
     @Override
     public boolean addAll(int index, Collection<? extends T> collection) {
-        validateIndexEnclosingEnd(index);
+        validateIndexForAdd(index);
         Node<T> nodeToAddBefore = findNode(index);
         for (T element : collection) {
             addInternal(nodeToAddBefore, element);
@@ -75,7 +74,7 @@ public class LinkedList<T> extends AbstractList<T> {
 
     @Override
     public T set(T value, int index) {
-        validateIfEmpty();
+        validateIfEmpty("Can`t apply set on empty list");
         validateIndex(index);
         Node<T> nodeToSet = findNode(index);
         T oldValue = nodeToSet.value;
@@ -84,10 +83,9 @@ public class LinkedList<T> extends AbstractList<T> {
     }
 
 
-
     @Override
     public void add(T value, int index) {
-        validateIndexEnclosingEnd(index);
+        validateIndexForAdd(index);
         addInternal(findNode(index), value);
     }
 
@@ -117,37 +115,35 @@ public class LinkedList<T> extends AbstractList<T> {
         return Objects.equals(node.value, value) ? index : -1;
     }
 
-    private Node<T> findNodeFunctional(int index, Node<T> startNode, Function<Node<T>, Node<T>> nextElement) {
-        Node<T> node = startNode;
-        int counter = 0;
-        while (counter != index) {
-            counter++;
-            node = nextElement.apply(node);
+    private Node<T> findNode(int index) {
+        Node<T> node;
+        if (index <= size / 2) {
+            node = tail;
+            for (int i = size - 1; i >= 0; i--) {
+                if (i == index) {
+                    return node;
+                }
+                node = node.prev;
+            }
+        } else {
+            node = head;
+            for (int i = 0; i < size; i++) {
+                if (i == index) {
+                    return node;
+                }
+                node = node.next;
+            }
         }
         return node;
-    }
-
-    private Node<T> findNode(int index) {
-        if (size == 0) {
-            return null;
-        }
-        if (index <= size / 2) {
-            return findNodeFunctional(size - 1 - index, tail, node -> node.prev);
-        } else {
-            return findNodeFunctional(index, head, node -> node.next);
-        }
     }
 
     private boolean remove(Node<T> nodeToBeRemoved) {
         if (nodeToBeRemoved == null) {
             return false;
         }
-        size--;
-        if (head == nodeToBeRemoved) {
-            if (tail == head) {
-                clear();
-                return true;
-            }
+        if (size == 1) {
+            tail = head = null;
+        } else if (head == nodeToBeRemoved) {
             head = nodeToBeRemoved.next;
             head.prev = null;
         } else if (tail == nodeToBeRemoved) {
@@ -157,6 +153,7 @@ public class LinkedList<T> extends AbstractList<T> {
             nodeToBeRemoved.prev.next = nodeToBeRemoved.next;
             nodeToBeRemoved.next.prev = nodeToBeRemoved.prev;
         }
+        size--;
         return true;
     }
 

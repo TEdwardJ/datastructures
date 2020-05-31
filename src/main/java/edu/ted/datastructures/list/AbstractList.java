@@ -21,7 +21,7 @@ public abstract class AbstractList<T> implements ExtendedList<T> {
         return indexOf(value) != -1;
     }
 
-    void validateIndexEnclosingEnd(int index) {
+    void validateIndexForAdd(int index) {
         if (index > size || index < 0) {
             throw new IndexOutOfBoundsException(getIndexOutOfBoundMessage(index, size));
         }
@@ -33,9 +33,9 @@ public abstract class AbstractList<T> implements ExtendedList<T> {
         }
     }
 
-    void validateIfEmpty() {
+    void validateIfEmpty(String errorMessage) {
         if (size == 0) {
-            throw new IndexOutOfBoundsException("Can`t apply set on empty list");
+            throw new IndexOutOfBoundsException(errorMessage);
         }
     }
 

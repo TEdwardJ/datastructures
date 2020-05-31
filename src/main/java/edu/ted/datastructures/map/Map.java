@@ -1,8 +1,6 @@
 package edu.ted.datastructures.map;
 
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.Objects;
 import java.util.Set;
 
 public interface Map<K, V> extends Iterable<Map.Entry<K, V>> {
@@ -30,43 +28,12 @@ public interface Map<K, V> extends Iterable<Map.Entry<K, V>> {
 
     Collection<V> values();
 
-    Iterator<Entry<K, V>> iterator();
-
     Set<Entry<K, V>> entrySet();
 
-    static class Entry<K, V> {
-        private K key;
-        private V value;
+     interface Entry<K, V> {
+        K getKey();
 
-        Entry(K key, V value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        public K getKey() {
-            return key;
-        }
-
-        public V getValue() {
-            return value;
-        }
-
-        public void setValue(V value) {
-            this.value = value;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Entry<?, ?> entry = (Entry<?, ?>) o;
-            return getKey().equals(entry.getKey()) &&
-                    Objects.equals(getValue(), entry.getValue());
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(getKey(), getValue());
-        }
+        V getValue();
+        void setValue(V value);
     }
 }
