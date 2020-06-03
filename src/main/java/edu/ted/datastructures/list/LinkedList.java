@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.function.Function;
 
 public class LinkedList<T> extends AbstractList<T> {
     private Node<T> tail;

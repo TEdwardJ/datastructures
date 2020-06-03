@@ -144,7 +144,7 @@ public class HashMapTest {
         testMap.put("key0", "value0");
         testMap.put("key1", "value1");
         testMap.put("key2", "value2");
-        java.util.Map<String, String> mapToAdd = new java.util.HashMap<>();
+        Map<String, String> mapToAdd = new HashMap<>();
         mapToAdd.put("Key0", "Value0");
         mapToAdd.put("Key1", "Value1");
         mapToAdd.put("Key2", "Value2");
@@ -199,22 +199,14 @@ public class HashMapTest {
         testMap.put("key2", "value2");
         Set<String> keySet = testMap.keySet();
         Iterator<Map.Entry<String, String>> iterator = testMap.iterator();
-        int counter = 0;
         Map.Entry<String, String> entry;
-        while (iterator.hasNext()) {
-            if (counter == 2) {
-                Throwable thrown = assertThrows(ConcurrentModificationException.class, iterator::next);
-                assertEquals("The element does not exist now", thrown.getMessage());
-                return;
-            } else {
-                entry = iterator.next();
-            }
-            keySet.remove(entry.getKey());
-            if (counter == 1) {
-                testMap.remove(keySet.iterator().next());
-            }
-            counter++;
-        }
+        entry = iterator.next();
+        keySet.remove(entry.getKey());
+        entry = iterator.next();
+        keySet.remove(entry.getKey());
+        testMap.remove(keySet.iterator().next());
+        Throwable thrown = assertThrows(ConcurrentModificationException.class, iterator::next);
+        assertEquals("The element does not exist now", thrown.getMessage());
     }
 
     @Test

@@ -20,7 +20,7 @@ public interface Map<K, V> extends Iterable<Map.Entry<K, V>> {
 
     V remove(Object key);
 
-    void putAll(java.util.Map<? extends K, ? extends V> map);
+    void putAll(Map<? extends K, ? extends V> map);
 
     void clear();
 

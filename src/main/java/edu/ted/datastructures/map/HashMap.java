@@ -8,33 +8,33 @@ import java.util.*;
 
 public class HashMap<K, V> implements Map<K, V> {
 
-    private static final double DEFAULT_LOAD_RATIO = 0.75d;
+    private static final double DEFAULT_LOAD_FACTOR = 0.75d;
     private static final int INITIAL_CAPACITY = 16;
     private static final double GROWTH_FACTOR = 2;
 
-    private ArrayList<Map.Entry<K, V>>[] bucketList;
+    private ArrayList<Map.Entry<K, V>>[] buckets;
 
-    private int currentSize;
+    private int size;
     private int currentBucketSize;
-    private double loadRatio;
+    private double loadFactor;
 
     public HashMap() {
-        this(INITIAL_CAPACITY, DEFAULT_LOAD_RATIO);
+        this(INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR);
     }
 
     public HashMap(int capacity, double loadRatio) {
-        bucketList = (ArrayList<Map.Entry<K, V>>[])new ArrayList[capacity];
-        this.loadRatio = loadRatio;
+        buckets = (ArrayList<Map.Entry<K, V>>[]) new ArrayList[capacity];
+        this.loadFactor = loadRatio;
     }
 
     @Override
     public int size() {
-        return currentSize;
+        return size;
     }
 
     @Override
     public boolean isEmpty() {
-        return currentSize == 0;
+        return size == 0;
     }
 
     @Override
@@ -44,9 +44,9 @@ public class HashMap<K, V> implements Map<K, V> {
 
     @Override
     public boolean containsValue(Object value) {
-        for (ArrayList<Map.Entry<K, V>> bucket : bucketList) {
+        for (ArrayList<Map.Entry<K, V>> bucket : buckets) {
             if (bucket != null) {
-                for (Map.Entry<K, V> entry : bucket) {
+                for (Map.Entry<? extends K, ? extends V> entry : bucket) {
                     if (Objects.equals(entry.getValue(), value)) {
                         return true;
                     }
@@ -58,7 +58,7 @@ public class HashMap<K, V> implements Map<K, V> {
 
     @Override
     public V get(K key) {
-        Map.Entry<K, V> entry = getEntry(key);
+        Map.Entry<? extends K, ? extends V> entry = getEntry(key);
         if (entry != null) {
             return entry.getValue();
         }
@@ -67,21 +67,10 @@ public class HashMap<K, V> implements Map<K, V> {
 
     @Override
     public V putIfAbsent(K key, V value) {
-        Map.Entry<K, V> oldEntry = putIfAbsentOrReturnEntry(key, value);
+        Map.Entry<? extends K, ? extends V> oldEntry = putIfAbsentOrReturnEntry(key, value);
         if (oldEntry != null) {
             return oldEntry.getValue();
         }
-        return null;
-    }
-
-    private Map.Entry<K, V> putIfAbsentOrReturnEntry(K key, V value) {
-        Map.Entry<K, V> oldEntry = getEntry(key);
-        if (oldEntry != null) {
-            return oldEntry;
-        }
-        ensureCapacity();
-        putIntoBucket(new HashMapEntry<>(key, value));
-        currentSize++;
         return null;
     }
 
@@ -90,9 +79,7 @@ public class HashMap<K, V> implements Map<K, V> {
         Map.Entry<K, V> oldEntry = putIfAbsentOrReturnEntry(key, value);
         if (oldEntry != null) {
             V oldValue = oldEntry.getValue();
-            if (!Objects.equals(value, oldValue)) {
-                oldEntry.setValue(value);
-            }
+            oldEntry.setValue(value);
             return oldValue;
         }
         return null;
@@ -109,26 +96,26 @@ public class HashMap<K, V> implements Map<K, V> {
         if (bucket.size() == 0) {
             currentBucketSize--;
         }
-        currentSize--;
+        size--;
         return entry.getValue();
     }
 
     @Override
-    public void putAll(java.util.Map map) {
-        Set<? extends K> keySet = map.keySet();
-        for (K key : keySet) {
-            this.put(key, (V) map.get(key));
+    public void putAll(Map<? extends K, ? extends V> map) {
+        Set<? extends Entry<? extends K, ? extends V>> entrySet = map.entrySet();
+        for (Entry<? extends K, ? extends V> entry : entrySet) {
+            putIntoBucket((Entry<K, V>) entry);
         }
     }
 
     @Override
     public void clear() {
-        for (ArrayList<Map.Entry<K, V>> bucket : bucketList) {
+        for (ArrayList<Map.Entry<K, V>> bucket : buckets) {
             if (bucket != null) {
                 bucket.clear();
             }
         }
-        currentSize = currentBucketSize = 0;
+        size = currentBucketSize = 0;
     }
 
     @Override
@@ -145,29 +132,38 @@ public class HashMap<K, V> implements Map<K, V> {
     public Collection<V> values() {
         Collection<V> valuesList = new java.util.ArrayList<>();
         Set<Map.Entry<K, V>> entrySet = entrySet();
-        for (Map.Entry<K, V> entry : entrySet) {
+        for (Map.Entry<K,  V> entry : entrySet) {
             valuesList.add(entry.getValue());
         }
         return valuesList;
     }
 
     @Override
-    public Iterator<Map.Entry<K, V>> iterator() {
+    public Iterator<Entry<K, V>> iterator() {
         return new MapIterator();
     }
 
-    private ExtendedList<Map.Entry<K, V>> getBucketByNumber(int bucketNumber) {
-        ExtendedList<Map.Entry<K, V>> list;
-        if (bucketList[bucketNumber] == null) {
-            bucketList[bucketNumber] = new ArrayList<>(1);
+    private Map.Entry<K, V> putIfAbsentOrReturnEntry(K key, V value) {
+        Map.Entry<K, V> oldEntry = getEntry(key);
+        if (oldEntry != null) {
+            return oldEntry;
         }
-        list = bucketList[bucketNumber];
-        return list;
+        ensureCapacity();
+        putIntoBucket(new HashMapEntry<>(key, value));
+        size++;
+        return null;
+    }
+
+    private ExtendedList<Map.Entry<K, V>> getBucketByIndex(int bucketNumber) {
+        if (buckets[bucketNumber] == null) {
+            buckets[bucketNumber] = new ArrayList<>(1);
+        }
+        return buckets[bucketNumber];
     }
 
     private ExtendedList<Map.Entry<K, V>> getBucket(Object key) {
-        int bucketNumber = Math.abs(Objects.hashCode(key) % bucketList.length);
-        return getBucketByNumber(bucketNumber);
+        int bucketIndex = Math.abs(Objects.hashCode(key) % buckets.length);
+        return getBucketByIndex(bucketIndex);
     }
 
     private void putIntoBucket(Map.Entry<K, V> entry) {
@@ -179,18 +175,18 @@ public class HashMap<K, V> implements Map<K, V> {
     }
 
     private class MapIterator implements Iterator<Map.Entry<K, V>> {
-        private Set<K> keySet;
-        private Iterator<K> internalIterator;
+        private Set<? extends K> keySet;
+        private Iterator<? extends K> bucketIterator;
         private Map.Entry<K, V> lastReturned;
 
         private MapIterator() {
             keySet = HashMap.this.keySet();
-            internalIterator = keySet.iterator();
+            bucketIterator = keySet.iterator();
         }
 
         @Override
         public boolean hasNext() {
-            return internalIterator.hasNext();
+            return bucketIterator.hasNext();
         }
 
         @Override
@@ -198,7 +194,7 @@ public class HashMap<K, V> implements Map<K, V> {
             if (!hasNext()) {
                 throw new NoSuchElementException("All elements were fetched in this iterator");
             }
-            lastReturned = getEntry(internalIterator.next());
+            lastReturned = getEntry(bucketIterator.next());
             if (lastReturned == null) {
                 throw new ConcurrentModificationException("The element does not exist now");
             }
@@ -218,7 +214,7 @@ public class HashMap<K, V> implements Map<K, V> {
     @Override
     public Set<Map.Entry<K, V>> entrySet() {
         Set<Map.Entry<K, V>> entrySet = new HashSet<>();
-        for (ArrayList<Map.Entry<K, V>> bucket : bucketList) {
+        for (List<Map.Entry<K, V>> bucket : buckets) {
             if (bucket != null) {
                 for (Entry<K, V> entry : bucket) {
                     entrySet.add(entry);
@@ -239,11 +235,11 @@ public class HashMap<K, V> implements Map<K, V> {
     }
 
     private void ensureCapacity() {
-        if (loadRatio * bucketList.length < (currentBucketSize + 1)) {
+        if (loadFactor * buckets.length < (size + 1)) {
             Set<Map.Entry<K, V>> set = entrySet();
 
             currentBucketSize = 0;
-            bucketList = (ArrayList<Map.Entry<K, V>>[])new ArrayList[(int)(bucketList.length * GROWTH_FACTOR)];
+            buckets = (ArrayList<Map.Entry<K, V>>[]) new ArrayList[(int) (buckets.length * GROWTH_FACTOR)];
             for (Map.Entry<K, V> entry : set) {
                 putIntoBucket(entry);
             }
@@ -251,7 +247,7 @@ public class HashMap<K, V> implements Map<K, V> {
     }
 
     public static class HashMapEntry<K, V> implements Map.Entry<K, V> {
-        private K key;
+        private final K key;
         private V value;
 
         HashMapEntry(K key, V value) {
