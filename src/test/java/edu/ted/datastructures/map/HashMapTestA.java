@@ -412,7 +412,7 @@ public class HashMapTestA {
         new HashMap<>().iterator().next();
     }
 
-    @Test//(expected = NoSuchElementException.class)
+    @Test
     public void catchGivenIteratorWhenNextAfterLastElementThenNoSuchElementExceptionShouldBeRaised(){
         assertThrows(NoSuchElementException.class, ()->givenIteratorWhenNextAfterLastElementThenNoSuchElementExceptionShouldBeRaised());
     }

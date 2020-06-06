@@ -34,6 +34,5 @@ public interface Map<K, V> extends Iterable<Map.Entry<K, V>> {
         K getKey();
 
         V getValue();
-        void setValue(V value);
     }
 }
