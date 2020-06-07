@@ -215,4 +215,30 @@ public class HashMapTest {
         testMap.put("key0", "value0");
         assertEquals("value0", testMap.get("key0"));
     }
+
+    @Test
+    public void givenNonExtendableMapPut2ElementsThenGetIteratorThenRemoveFirstThenTryToGetNext(){
+        HashMap<String, String> map = new HashMap<>(1,2);
+        map.put("key0","value0");
+        map.put("key1","value1");
+        Iterator<Map.Entry<String, String>> iterator = map.iterator();
+        assertTrue(iterator.hasNext());
+        iterator.next();
+        iterator.remove();
+        assertTrue(iterator.hasNext());
+        assertEquals("key0",iterator.next().getKey());
+    }
+    @Test
+    public void givenNonExtendableMapPut2ElementsThenGetIteratorThenRemoveLastThenTryToGetNext(){
+        HashMap<String, String> map = new HashMap<>(1,2);
+        map.put("key0","value0");
+        map.put("key1","value1");
+        Iterator<Map.Entry<String, String>> iterator = map.iterator();
+        assertTrue(iterator.hasNext());
+        iterator.next();
+        iterator.next();
+        iterator.remove();
+        assertFalse(iterator.hasNext());
+        assertThrows(NoSuchElementException.class,()->iterator.next().getKey());
+    }
 }
