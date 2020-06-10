@@ -402,9 +402,7 @@ public class HashMapTestA {
         assertThat(map.containsKey(notExistingKeyWithHashLeadingToSameBucket), is(false));
     }
 
-
-
-    @Test//(expected = NoSuchElementException.class)
+    @Test
     public void catchGivenEmptyMapWhenIteratorNextThenNoSuchElementExceptionShouldBeRaised(){
         assertThrows(NoSuchElementException.class, ()->givenEmptyMapWhenIteratorNextThenNoSuchElementExceptionShouldBeRaised());
     }
@@ -540,7 +538,7 @@ public class HashMapTestA {
         assertThat(iterator.hasNext(), is(false));
     }
 
-    @Test//(expected = IllegalStateException.class)
+    @Test
     public void catchGivenEmptyMapWhenIteratorRemoveThenNoSuchElementExceptionShouldBeRaised(){
         assertThrows(IllegalStateException.class, ()->givenEmptyMapWhenIteratorRemoveThenNoSuchElementExceptionShouldBeRaised());
     }
@@ -549,12 +547,12 @@ public class HashMapTestA {
         new HashMap<>().iterator().remove();
     }
 
-    @Test//(expected = IllegalStateException.class)
+    @Test
     public void catchGivenIteratorWhenRemoveCalledWithoutNextThenIllegalStateExceptionShouldBeRaised(){
         assertThrows(IllegalStateException.class, ()->givenIteratorWhenRemoveCalledWithoutNextThenIllegalStateExceptionShouldBeRaised());
     }
 
-    @Test//(expected = IllegalStateException.class)
+    @Test
     public void cAtchGivenIteratorWhenRemoveCalledWithoutNextThenIllegalStateExceptionShouldBeRaised(){
         assertThrows(IllegalStateException.class, ()->givenIteratorWhenRemoveCalledWithoutNextThenIllegalStateExceptionShouldBeRaised());
     }

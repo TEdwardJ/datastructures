@@ -146,7 +146,8 @@ public class HashMap<K, V> implements Map<K, V> {
     }
 
     private void putNew(Node<K, V> newNode) {
-        int bucketIndex = getBucketIndex(newNode.key);
+        int bucketIndex = Math.abs(newNode.hash % buckets.length);пше ыефегы
+
         newNode.next = buckets[bucketIndex];
         buckets[bucketIndex] = newNode;
     }
