@@ -11,11 +11,12 @@ public class LinkedList<T> extends AbstractList<T> {
 
     @Override
     public Iterator<T> iterator() {
-        return this.new LinkedListIterator();
+        return new LinkedListIterator();
     }
 
     @Override
     public Object[] toArray() {
+        @SuppressWarnings("unchecked")
         T[] arrayToReturn = (T[]) new Object[size];
         int counter = 0;
         for (T element : this) {

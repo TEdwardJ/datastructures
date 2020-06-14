@@ -17,9 +17,9 @@ public class HashMap<K, V> implements Map<K, V> {
         this(INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR);
     }
 
-    public HashMap(int capacity, double loadRatio) {
+    public HashMap(int capacity, double loadFactor) {
         buckets = (Node<K, V>[]) new Node[capacity];
-        this.loadFactor = loadRatio;
+        this.loadFactor = loadFactor;
     }
 
     @Override
@@ -58,7 +58,13 @@ public class HashMap<K, V> implements Map<K, V> {
 
     @Override
     public V putIfAbsent(K key, V value) {
-        final Node<K, V> node = putIfAbsentOrReturnNode(key, value);
+        Node<K, V> node = null;
+        final Node<K, V> existingNode = findNode(key);
+        if (existingNode != null) {
+            node = existingNode;
+        } else {
+            putNew(new Node<>(key, value), buckets);
+        }
         if (node == null) {
             size++;
             return null;
@@ -68,17 +74,16 @@ public class HashMap<K, V> implements Map<K, V> {
 
     @Override
     public V put(K key, V value) {
-        Node<K, V> oldNode = removeInternal(key);
-        if (oldNode == null) {
-            ensureCapacity();
-            size++;
+        Node<K, V> oldNode = findNode(key);
+        if (oldNode != null) {
+            V oldValue = oldNode.value;
+            oldNode.value = value;
+            return oldValue;
         }
-        putIfAbsentOrReturnNode(key, value);
-
-        if (oldNode == null) {
-            return null;
-        }
-        return oldNode.value;
+        ensureCapacity();
+        size++;
+        putNew(new Node(key, value),buckets);
+        return null;
     }
 
 
@@ -93,7 +98,6 @@ public class HashMap<K, V> implements Map<K, V> {
     }
 
 
-
     @Override
     public void putAll(Map<? extends K, ? extends V> map) {
         Set<? extends Entry<? extends K, ? extends V>> entrySet = map.entrySet();
@@ -104,11 +108,7 @@ public class HashMap<K, V> implements Map<K, V> {
 
     @Override
     public void clear() {
-        for (Node<K, V> bucket : buckets) {
-            if (bucket != null) {
-                bucket = null;
-            }
-        }
+        Arrays.fill(buckets, null);
         size = 0;
     }
 
@@ -145,32 +145,27 @@ public class HashMap<K, V> implements Map<K, V> {
         return new MapIterator();
     }
 
-    private void putNew(Node<K, V> newNode) {
-        int bucketIndex = Math.abs(newNode.hash % buckets.length);
+    private void putNew(Node<K, V> newNode, Node<K, V>[] buckets) {
+        int bucketIndex = getBucketIndex(newNode.hash, buckets.length);
         newNode.next = buckets[bucketIndex];
         buckets[bucketIndex] = newNode;
     }
 
-    private Node<K, V> putIfAbsentOrReturnNode(K key, V value) {
-        final Node<K, V> existingNode = findNode(key);
-        if (existingNode != null) {
-            return existingNode;
-        }
-        putNew(new Node<>(key, value));
-        return null;
+    private int getBucketIndex(Object key) {
+        return getBucketIndex(Objects.hashCode(key), buckets.length);
     }
 
-
-    private int getBucketIndex(Object key) {
-        return Math.abs(Objects.hashCode(key) % buckets.length);
+    private int getBucketIndex(int hash, int bucketsNumber) {
+        return Math.abs(hash % bucketsNumber);
     }
 
     private Node<K, V> findNode(Object key) {
-        if (size == 0) {
+        if (isEmpty()) {
             return null;
         }
         int hash = Objects.hashCode(key);
-        for (Node<K, V> node = buckets[getBucketIndex(key)]; node != null; node = node.next) {
+        int bucketIndex = getBucketIndex(key);
+        for (Node<K, V> node = buckets[bucketIndex]; node != null; node = node.next) {
             if (hash == node.hash && Objects.equals(node.key, key)) {
                 return node;
             }
@@ -178,9 +173,8 @@ public class HashMap<K, V> implements Map<K, V> {
         return null;
     }
 
-
     private Node<K, V> removeInternal(Object key) {
-        if (size == 0) {
+        if (isEmpty()) {
             return null;
         }
         int hash = Objects.hashCode(key);
@@ -203,8 +197,9 @@ public class HashMap<K, V> implements Map<K, V> {
     private class MapIterator implements Iterator<Map.Entry<K, V>> {
         private int bucketIndex;
         private int nextIndex;
-        private Node<K, V> lastReturned;
-        private Node<K, V> lastRemoved;
+        private Node<K, V> currentNode;
+        private Node<K, V> nextNodeToBeReturned;
+        private Node<K, V> lastNodeRemoved;
 
         @Override
         public boolean hasNext() {
@@ -216,39 +211,41 @@ public class HashMap<K, V> implements Map<K, V> {
             if (!hasNext()) {
                 throw new NoSuchElementException("All elements were fetched in this iterator");
             }
-            if (lastReturned != null && lastReturned.next != null) {
-                lastReturned = lastReturned.next;
+
+            if (nextNodeToBeReturned != null) {
+                currentNode = nextNodeToBeReturned;
             } else {
-                while ((lastReturned = buckets[bucketIndex++]) == null);
+                while ((currentNode = buckets[bucketIndex++]) == null) ;
             }
+            nextNodeToBeReturned = currentNode.next;
             nextIndex++;
-            return lastReturned;
+            return currentNode;
         }
 
         @Override
         public void remove() {
-            if (lastReturned == lastRemoved) {
+            if (currentNode == lastNodeRemoved) {
                 throw new IllegalStateException("The element was already removed");
             }
-            HashMap.this.remove(lastReturned.getKey());
-            lastRemoved = lastReturned;
+            HashMap.this.remove(currentNode.getKey());
+            lastNodeRemoved = currentNode;
             nextIndex--;
         }
     }
 
     private void ensureCapacity() {
         if (loadFactor * buckets.length < (size + 1)) {
-            Set<Map.Entry<K, V>> set = entrySet();
-            buckets = (Node<K, V>[]) new Node[(int) (buckets.length * GROWTH_FACTOR)];
-            for (Map.Entry<K, V> entry : set) {
-                putNew((Node<K, V>)entry);
+            Node<K, V>[] newBuckets = (Node<K, V>[]) new Node[(int) (buckets.length * GROWTH_FACTOR)];
+            for (Entry<K, V> entry : this) {
+                putNew((Node<K, V>) entry, newBuckets);
             }
+            buckets = newBuckets;
         }
     }
 
     public static class Node<K, V> implements Map.Entry<K, V> {
         private final K key;
-        private final V value;
+        private V value;
         private final int hash;
         private Node<K, V> next;
 

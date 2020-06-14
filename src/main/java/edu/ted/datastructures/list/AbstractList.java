@@ -34,19 +34,18 @@ public abstract class AbstractList<T> implements ExtendedList<T> {
     }
 
     void validateIfEmpty(String errorMessage) {
-        if (size == 0) {
+        if (isEmpty()) {
             throw new IndexOutOfBoundsException(errorMessage);
         }
     }
 
     String getIndexOutOfBoundMessage(int index, int highBoundary) {
-        return new StringBuilder("Index ")
-                .append(index)
-                .append(" is out of bounds ")
-                .append(0)
-                .append("..")
-                .append(highBoundary)
-                .toString();
+        return "Index " +
+                index +
+                " is out of bounds " +
+                0 +
+                ".." +
+                highBoundary;
     }
 
     int findFirstEqualElementIndex(Object template) {
